@@ -3,394 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SOVEREIGN OMEGA - BOSS EDITION</title>
+    <title>SOVEREIGN OMEGA PRO</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
 
     <style>
         :root { --neon: #00ff88; --bg: #050505; --panel: #121212; --text: #f0f0f0; --msg-me: #005c4b; --msg-them: #202c33; --danger: #ff3b3b; }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        /* AUTH & SETUP */
-        #auth-layer { position: fixed; inset: 0; background: var(--bg); z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: var(--panel); border: 1px solid var(--neon); padding: 30px; border-radius: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 0 40px rgba(0,255,136,0.1); }
-        .p-circle { width: 110px; height: 110px; border: 2px dashed var(--neon); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; background: #1a1a1a; }
-        .p-circle img { width: 100%; height: 100%; object-fit: cover; }
+        /* GİRİŞ LAYERİ */
+        #auth-layer { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: var(--panel); border: 2px solid var(--neon); padding: 40px; border-radius: 40px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 0 50px rgba(0,255,136,0.15); }
+        .profile-upload { width: 120px; height: 120px; border: 3px dashed var(--neon); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
+        .profile-upload img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* DASHBOARD LAYOUT */
+        /* ƏSAS İNTERFEYS */
         .app-container { display: none; height: 100vh; flex-direction: column; }
-        .header { height: 70px; background: var(--panel); display: flex; align-items: center; padding: 0 20px; justify-content: space-between; border-bottom: 1px solid #222; z-index: 100; }
-        .tab-bar { display: flex; background: var(--panel); height: 50px; border-bottom: 1px solid #222; }
-        .tab { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .main-header { height: 80px; background: var(--panel); display: flex; align-items: center; padding: 0 20px; justify-content: space-between; border-bottom: 1px solid #222; }
+        .tabs { display: flex; background: var(--panel); border-bottom: 1px solid #222; }
+        .tab { flex: 1; padding: 15px; text-align: center; color: #777; font-weight: 800; cursor: pointer; }
         .tab.active { color: var(--neon); border-bottom: 3px solid var(--neon); }
 
-        /* MESSAGES & CHAT */
-        .scroll-area { flex: 1; overflow-y: auto; padding: 10px; background: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-repeat: repeat; }
-        .contact-item { display: flex; align-items: center; padding: 15px; background: var(--panel); border-radius: 20px; margin-bottom: 10px; cursor: pointer; border: 1px solid #222; transition: 0.2s; }
-        .contact-item:active { transform: scale(0.98); }
-        .msg-bubble { max-width: 80%; padding: 12px 16px; border-radius: 15px; margin-bottom: 8px; position: relative; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
-        .msg-me { align-self: flex-end; background: var(--msg-me); border-top-right-radius: 2px; }
-        .msg-them { align-self: flex-start; background: var(--msg-them); border-top-left-radius: 2px; }
+        /* ÇAT SİYAHISI */
+        .feed { flex: 1; overflow-y: auto; padding: 15px; background: #000; }
+        .user-card { display: flex; align-items: center; padding: 15px; background: var(--panel); border-radius: 20px; margin-bottom: 12px; border: 1px solid #222; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* INPUT AREA */
-        .input-box { background: var(--panel); padding: 15px; display: flex; align-items: center; gap: 12px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
-        .input-boss { background: #2a2a2a; border: none; padding: 14px 20px; border-radius: 30px; color: #fff; flex: 1; outline: none; font-size: 16px; }
-        .btn-circle { width: 50px; height: 50px; border-radius: 50%; background: var(--neon); display: flex; align-items: center; justify-content: center; border: none; font-size: 20px; color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        /* CANLI ÇAT PƏNCƏRƏSİ */
+        .window { position: fixed; inset: 0; background: #0b141a; z-index: 5000; transform: translateX(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        .window.active { transform: translateX(0); }
+        .msg-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { max-width: 75%; padding: 12px 18px; border-radius: 20px; font-size: 15px; position: relative; line-height: 1.4; }
+        .me { align-self: flex-end; background: var(--msg-me); border-bottom-right-radius: 2px; }
+        .them { align-self: flex-start; background: var(--msg-them); border-bottom-left-radius: 2px; }
 
-        /* CALL SCREEN */
-        #call-ui { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; flex-direction: column; align-items: center; justify-content: space-around; padding: 60px 0; }
-        .video-box { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
-        .call-controls { display: flex; gap: 40px; }
-        .btn-call { width: 75px; height: 75px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 25px; border: none; color: white; }
+        /* ZƏNG EKRANI */
+        #call-layer { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; flex-direction: column; align-items: center; justify-content: space-around; }
+        .video-full { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .video-mini { position: absolute; top: 40px; right: 20px; width: 120px; height: 160px; border-radius: 20px; border: 2px solid var(--neon); z-index: 10; object-fit: cover; }
+        .call-btns { z-index: 100; display: flex; gap: 40px; }
+        .btn-call { width: 70px; height: 70px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; cursor: pointer; }
 
-        /* MODALS */
-        .full-window { position: fixed; inset: 0; background: var(--bg); z-index: 5000; transform: translateX(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
-        .full-window.active { transform: translateX(0); }
-
-        /* ANIMATIONS */
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        .online-dot { width: 10px; height: 10px; background: var(--neon); border-radius: 50%; box-shadow: 0 0 10px var(--neon); }
+        /* DAXİLİ INPUT */
+        .input-bar { background: var(--panel); padding: 15px; display: flex; align-items: center; gap: 10px; }
+        .boss-input { background: #222; border: none; padding: 15px 20px; border-radius: 30px; color: #fff; flex: 1; outline: none; }
+        .fab { width: 55px; height: 55px; border-radius: 50%; background: var(--neon); border: none; font-size: 20px; color: #000; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,255,136,0.3); }
     </style>
 </head>
 <body>
 
     <div id="auth-layer">
         <div class="auth-card">
-            <h1 style="font-family:'Orbitron'; color:var(--neon); font-size:24px; margin-bottom:10px;">OMEGA CORE</h1>
-            <p style="color:#777; font-size:12px; margin-bottom:25px;">HƏRBİ SƏVİYYƏLİ ŞİFRƏLƏMƏ AKTİVDİR</p>
-            <div class="p-circle" onclick="document.getElementById('p-input').click()">
-                <img id="p-preview" style="display:none;">
-                <i id="p-icon" class="fas fa-camera" style="font-size:30px; color:var(--neon);"></i>
+            <h1 style="font-family:'Orbitron'; color:var(--neon); margin-bottom:10px;">OMEGA V8 PRO</h1>
+            <p style="color:#666; font-size:12px; margin-bottom:20px;">AES-256 ŞİFRƏLƏMƏ AKTİVDİR</p>
+            <div class="profile-upload" onclick="document.getElementById('f-in').click()">
+                <img id="p-img" style="display:none;">
+                <i id="p-icon" class="fas fa-user-shield" style="font-size:40px; color:var(--neon);"></i>
             </div>
-            <input type="file" id="p-input" hidden onchange="handleProfile(event)">
-            <input type="text" id="p-name" class="input-boss" placeholder="Adınız və ya Kod Adı" style="margin-bottom:15px; text-align:center;">
-            <textarea id="p-about" class="input-boss" placeholder="Haqqımda (Məs: Boss is here)" style="border-radius:15px; height:80px;"></textarea>
-            <button class="btn-boss" onclick="masterLogin()" style="background:var(--neon); color:#000; font-weight:900; padding:18px; border-radius:15px; width:100%; margin-top:15px; border:none; cursor:pointer;">SİSTEMƏ DAXİL OL</button>
+            <input type="file" id="f-in" hidden onchange="preview(event)">
+            <input type="text" id="p-name" class="boss-input" placeholder="Kod adınız" style="text-align:center; margin-bottom:15px;">
+            <button onclick="login()" style="background:var(--neon); width:100%; padding:18px; border-radius:20px; border:none; font-weight:900; letter-spacing:1px; cursor:pointer;">ŞƏBƏKƏYƏ QOŞUL</button>
         </div>
     </div>
 
-    <div class="app-container" id="app-core">
-        <div class="header">
+    <div class="app-container" id="app">
+        <div class="main-header">
             <div style="display:flex; align-items:center; gap:12px;">
-                <div class="p-circle" style="width:45px; height:45px; margin:0;" onclick="openSettings()">
-                    <img id="my-avatar-top">
-                </div>
+                <img id="top-avatar" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid var(--neon);">
                 <div>
-                    <div id="my-name-top" style="font-weight:800; font-size:17px;">Boss</div>
-                    <div id="my-id-top" style="font-size:10px; color:var(--neon); font-family:'Orbitron';">ID: ...</div>
+                    <div id="top-name" style="font-weight:900;">Boss</div>
+                    <div id="top-id" style="font-size:10px; color:var(--neon); font-family:'Orbitron';">ID: ...</div>
                 </div>
             </div>
-            <div style="display:flex; gap:20px; font-size:20px;">
-                <i class="fas fa-search"></i>
-                <i class="fas fa-ellipsis-v" onclick="toggleMenu()"></i>
-            </div>
+            <i class="fas fa-cog" style="font-size:20px;" onclick="openSettings()"></i>
         </div>
-
-        <div class="tab-bar">
-            <div class="tab active" onclick="switchTab('chats')">ÇATLAR</div>
-            <div class="tab" onclick="switchTab('status')">STATUS</div>
-            <div class="tab" onclick="switchTab('calls')">ZƏNGLƏR</div>
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('chats')">MESAJLAR</div>
+            <div class="tab" onclick="showTab('status')">STATUS</div>
         </div>
-
-        <div class="scroll-area" id="contacts-feed"></div>
-
-        <div style="position:fixed; bottom:30px; right:30px;">
-            <button class="btn-circle" onclick="promptAddContact()">
-                <i class="fas fa-plus"></i>
-            </button>
-        </div>
+        <div class="feed" id="user-feed"></div>
+        <button class="fab" style="position:fixed; bottom:30px; right:30px;" onclick="addFriend()">
+            <i class="fas fa-user-plus"></i>
+        </button>
     </div>
 
-    <div id="chat-window" class="full-window">
-        <div class="header">
+    <div id="chat-win" class="window">
+        <div class="main-header">
             <div style="display:flex; align-items:center; gap:15px;">
                 <i class="fas fa-arrow-left" onclick="closeChat()"></i>
-                <div class="p-circle" style="width:40px; height:40px; margin:0;"><img id="chat-avatar"></div>
-                <div>
-                    <div id="chat-name" style="font-weight:700;">Dost</div>
-                    <div style="font-size:10px; color:var(--neon);">onlayn</div>
-                </div>
+                <img id="c-avatar" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                <div id="c-name" style="font-weight:700;">Dost</div>
             </div>
-            <div style="display:flex; gap:22px; font-size:18px;">
-                <i class="fas fa-video" onclick="initCall('video')"></i>
-                <i class="fas fa-phone" onclick="initCall('audio')"></i>
+            <div style="display:flex; gap:20px; font-size:18px;">
+                <i class="fas fa-video" onclick="call('video')"></i>
+                <i class="fas fa-phone" onclick="call('audio')"></i>
             </div>
         </div>
-        <div class="scroll-area" id="msg-feed" style="display:flex; flex-direction:column; padding-bottom:20px;"></div>
-        <div class="input-box">
-            <i class="fas fa-paperclip" style="color:#888; font-size:20px;"></i>
-            <input type="text" id="msg-input" class="input-boss" placeholder="Mesaj yazın...">
-            <button id="voice-btn" class="btn-circle" style="background:#222; color:var(--neon);" onmousedown="voiceStart()" onmouseup="voiceStop()">
-                <i class="fas fa-microphone"></i>
-            </button>
-            <button class="btn-circle" onclick="sendMessage()">
-                <i class="fas fa-paper-plane"></i>
+        <div class="msg-area" id="msg-feed"></div>
+        <div class="input-bar">
+            <i class="fas fa-microphone" id="rec-icon" style="font-size:20px; color:var(--neon);" onmousedown="startRec()" onmouseup="stopRec()"></i>
+            <input type="text" id="msg-in" class="boss-input" placeholder="Şifrəli mesaj yazın...">
+            <button class="fab" style="width:45px; height:45px;" onclick="sendText()">
+                <i class="fas fa-paper-plane" style="font-size:16px;"></i>
             </button>
         </div>
     </div>
 
-    <div id="call-ui">
-        <video id="remote-video" class="video-box" autoplay playsinline></video>
-        <video id="local-video" style="position:fixed; top:20px; right:20px; width:120px; border-radius:15px; border:2px solid var(--neon);" autoplay muted playsinline></video>
-        
-        <div style="text-align:center;">
-            <h2 id="call-user">ZƏNG EDİLİR...</h2>
-            <p id="call-time">00:00</p>
+    <div id="call-layer">
+        <video id="remote-v" class="video-full" autoplay playsinline></video>
+        <video id="local-v" class="video-mini" autoplay muted playsinline></video>
+        <div style="z-index:100; text-align:center;">
+            <h2 id="call-status" style="text-shadow: 0 0 10px #000;">ZƏNG EDİLİR...</h2>
         </div>
-
-        <div class="call-controls">
-            <button class="btn-call" style="background:#555;" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
-            <button class="btn-call" style="background:var(--danger);" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
-            <button class="btn-call" style="background:#555;" onclick="toggleCam()"><i class="fas fa-video"></i></button>
+        <div class="call-btns" id="out-btns">
+            <button class="btn-call" style="background:var(--danger);" onclick="hangup()"><i class="fas fa-phone-slash"></i></button>
         </div>
-        
-        <div id="incoming-buttons" style="display:none; gap:50px;">
-            <button class="btn-call" style="background:var(--neon);" onclick="answerCall()"><i class="fas fa-phone"></i></button>
-            <button class="btn-call" style="background:var(--danger);" onclick="endCall()"><i class="fas fa-times"></i></button>
+        <div class="call-btns" id="in-btns" style="display:none;">
+            <button class="btn-call" style="background:var(--neon); color:#000;" onclick="answer()"><i class="fas fa-phone"></i></button>
+            <button class="btn-call" style="background:var(--danger);" onclick="hangup()"><i class="fas fa-times"></i></button>
         </div>
     </div>
 
-    <audio id="snd-msg" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3"></audio>
-    <audio id="snd-ring" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
+    <audio id="ring" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
 
 <script>
-    /* 🔱 CORE ARCHITECTURE 🔱 */
-    const MASTER_KEY = "OMEGA_TOP_SECRET_BOSS";
-    let myPeer, myProfile, activeChat = null;
-    let peerCall, localStream;
-    let mediaRecorder, voiceChunks = [];
+    const KEY = "OMEGA_V8_ULTIMATE";
+    let peer, profile, activePeer = null, callObj, localStr, recorder, chunks = [];
 
-    // 1. LOGIN & RE-AUTHENTICATION
-    function handleProfile(e) {
-        const reader = new FileReader();
-        reader.onload = () => {
-            document.getElementById('p-preview').src = reader.result;
-            document.getElementById('p-preview').style.display = 'block';
-            document.getElementById('p-icon').style.display = 'none';
-        }
-        reader.readAsDataURL(e.target.files[0]);
+    function preview(e) {
+        const r = new FileReader();
+        r.onload = () => { document.getElementById('p-img').src = r.result; document.getElementById('p-img').style.display='block'; document.getElementById('p-icon').style.display='none'; };
+        r.readAsDataURL(e.target.files[0]);
     }
 
-    function masterLogin() {
-        const name = document.getElementById('p-name').value.trim();
-        const about = document.getElementById('p-about').value.trim();
-        const img = document.getElementById('p-preview').src || "https://i.imgur.com/8Km9tpg.png";
-        
-        if(!name) return alert("Ad mütləqdir!");
-
-        const bossID = "BOSS-SV-" + Math.floor(100000 + Math.random() * 900000);
-        myProfile = { id: bossID, name: name, about: about, avatar: img };
-        
-        localStorage.setItem('omega_profile', JSON.stringify(myProfile));
-        bootApp();
+    function login() {
+        const name = document.getElementById('p-name').value;
+        if(!name) return;
+        const id = "OMEGA-" + Math.floor(10000 + Math.random() * 90000);
+        profile = { id, name, img: document.getElementById('p-img').src || "https://i.imgur.com/8Km9tpg.png" };
+        localStorage.setItem('omega_v8_user', JSON.stringify(profile));
+        boot();
     }
 
-    function bootApp() {
-        const stored = JSON.parse(localStorage.getItem('omega_profile'));
-        if(!stored) return;
-
-        myProfile = stored;
+    function boot() {
+        const saved = localStorage.getItem('omega_v8_user');
+        if(!saved) return;
+        profile = JSON.parse(saved);
         document.getElementById('auth-layer').style.display = 'none';
-        document.getElementById('app-core').style.display = 'flex';
-        document.getElementById('my-name-top').innerText = myProfile.name;
-        document.getElementById('my-id-top').innerText = "ID: " + myProfile.id;
-        document.getElementById('my-avatar-top').src = myProfile.avatar;
+        document.getElementById('app').style.display = 'flex';
+        document.getElementById('top-name').innerText = profile.name;
+        document.getElementById('top-avatar').src = profile.img;
+        document.getElementById('top-id').innerText = "ID: " + profile.id;
 
-        // PeerJS Connection
-        myPeer = new Peer(myProfile.id, {
-            host: '0.peerjs.com', port: 443, secure: true,
-            config: { 'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }] }
+        peer = new Peer(profile.id, {
+            config: {'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }]}
         });
 
-        myPeer.on('connection', setupDataChannel);
-        myPeer.on('call', receiveCall);
-        renderContacts();
+        peer.on('connection', conn => {
+            conn.on('data', data => handleData(data));
+        });
+
+        peer.on('call', c => {
+            callObj = c;
+            document.getElementById('call-layer').style.display = 'flex';
+            document.getElementById('in-btns').style.display = 'flex';
+            document.getElementById('out-btns').style.display = 'none';
+            document.getElementById('ring').play();
+        });
+
+        loadFeed();
     }
 
-    // 2. MESSAGING ENGINE (AES-256)
-    const Security = {
-        encrypt: (msg) => CryptoJS.AES.encrypt(JSON.stringify(msg), MASTER_KEY).toString(),
-        decrypt: (cipher) => {
-            try {
-                const bytes = CryptoJS.AES.decrypt(cipher, MASTER_KEY);
-                return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-            } catch(e) { return null; }
-        }
-    };
-
-    function promptAddContact() {
-        const id = prompt("Dostunuzun BOSS ID-sini daxil edin:");
-        if(!id || id === myProfile.id) return;
-        
-        let db = JSON.parse(localStorage.getItem('omega_db') || "[]");
+    function addFriend() {
+        const id = prompt("Dostunuzun OMEGA ID-sini daxil edin:");
+        if(!id || id === profile.id) return;
+        let db = JSON.parse(localStorage.getItem('omega_v8_db') || "[]");
         if(!db.find(x => x.id === id)) {
-            db.push({ id: id, name: "User-" + id.slice(-4), avatar: "", msgs: [] });
-            localStorage.setItem('omega_db', JSON.stringify(db));
+            db.push({ id, name: "İstifadəçi " + id.split('-')[1], img: "", msgs: [] });
+            localStorage.setItem('omega_v8_db', JSON.stringify(db));
         }
-        renderContacts();
+        loadFeed();
     }
 
-    function renderContacts() {
-        const feed = document.getElementById('contacts-feed');
+    function loadFeed() {
+        const feed = document.getElementById('user-feed');
         feed.innerHTML = "";
-        const db = JSON.parse(localStorage.getItem('omega_db') || "[]");
-
-        db.forEach(c => {
+        const db = JSON.parse(localStorage.getItem('omega_v8_db') || "[]");
+        db.forEach(u => {
             feed.innerHTML += `
-                <div class="contact-item" onclick="openChat('${c.id}')">
-                    <div class="p-circle" style="width:55px; height:55px; margin:0;">
-                        <img src="${c.avatar || 'https://i.imgur.com/8Km9tpg.png'}">
-                    </div>
-                    <div style="flex:1; margin-left:15px;">
-                        <div style="display:flex; justify-content:space-between;">
-                            <b style="font-size:16px;">${c.name}</b>
-                            <small style="color:#666;">${new Date().getHours()}:${new Date().getMinutes()}</small>
-                        </div>
-                        <div style="color:#888; font-size:13px; margin-top:4px;">🔒 Uçdan-uca şifrəli mesaj</div>
+                <div class="user-card" onclick="openChat('${u.id}')">
+                    <img src="${u.img || 'https://i.imgur.com/8Km9tpg.png'}" style="width:50px; height:50px; border-radius:50%; margin-right:15px;">
+                    <div style="flex:1">
+                        <div style="font-weight:800">${u.name}</div>
+                        <div style="font-size:12px; color:#555">🔒 AES-256 ilə qorunur</div>
                     </div>
                 </div>`;
         });
     }
 
     function openChat(id) {
-        activeChat = id;
-        const db = JSON.parse(localStorage.getItem('omega_db'));
-        const user = db.find(x => x.id === id);
-        
-        document.getElementById('chat-window').classList.add('active');
-        document.getElementById('chat-name').innerText = user.name;
-        document.getElementById('chat-avatar').src = user.avatar || 'https://i.imgur.com/8Km9tpg.png';
-        loadMessages();
+        activePeer = id;
+        const db = JSON.parse(localStorage.getItem('omega_v8_db'));
+        const u = db.find(x => x.id === id);
+        document.getElementById('c-name').innerText = u.name;
+        document.getElementById('c-avatar').src = u.img || 'https://i.imgur.com/8Km9tpg.png';
+        document.getElementById('chat-win').classList.add('active');
+        renderMsgs();
     }
 
-    function sendMessage() {
-        const txt = document.getElementById('msg-input').value.trim();
-        if(!txt) return;
-        
-        const packet = { from: myProfile.id, type: 'text', body: txt, time: Date.now() };
-        transmit(packet);
-        document.getElementById('msg-input').value = "";
+    function sendText() {
+        const val = document.getElementById('msg-in').value.trim();
+        if(!val) return;
+        const packet = { from: profile.id, type: 'text', body: val, time: Date.now() };
+        saveAndSend(packet);
+        document.getElementById('msg-in').value = "";
     }
 
-    function transmit(packet) {
-        // Save to Local DB
-        let db = JSON.parse(localStorage.getItem('omega_db'));
-        db.find(x => x.id === activeChat).msgs.push(packet);
-        localStorage.setItem('omega_db', JSON.stringify(db));
-
-        // P2P Send
-        const conn = myPeer.connect(activeChat);
+    function saveAndSend(p) {
+        let db = JSON.parse(localStorage.getItem('omega_v8_db'));
+        db.find(x => x.id === activePeer).msgs.push(p);
+        localStorage.setItem('omega_v8_db', JSON.stringify(db));
+        
+        const conn = peer.connect(activePeer);
         conn.on('open', () => {
-            conn.send(Security.encrypt(packet));
-            loadMessages();
+            conn.send(CryptoJS.AES.encrypt(JSON.stringify(p), KEY).toString());
+            renderMsgs();
         });
     }
 
-    function setupDataChannel(conn) {
-        conn.on('data', (cipher) => {
-            const data = Security.decrypt(cipher);
-            if(data) {
-                let db = JSON.parse(localStorage.getItem('omega_db') || "[]");
-                let contact = db.find(x => x.id === data.from);
-                if(contact) {
-                    contact.msgs.push(data);
-                    localStorage.setItem('omega_db', JSON.stringify(db));
-                    document.getElementById('snd-msg').play();
-                    if(activeChat === data.from) loadMessages();
-                }
-            }
-        });
+    function handleData(cipher) {
+        const bytes = CryptoJS.AES.decrypt(cipher, KEY);
+        const data = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+        let db = JSON.parse(localStorage.getItem('omega_v8_db'));
+        let u = db.find(x => x.id === data.from);
+        if(u) {
+            u.msgs.push(data);
+            localStorage.setItem('omega_v8_db', JSON.stringify(db));
+            if(activePeer === data.from) renderMsgs();
+            notify();
+        }
     }
 
-    function loadMessages() {
-        const feed = document.getElementById('msg-feed');
-        feed.innerHTML = "";
-        const db = JSON.parse(localStorage.getItem('omega_db'));
-        const chat = db.find(x => x.id === activeChat);
-
-        chat.msgs.forEach(m => {
-            const side = m.from === myProfile.id ? 'msg-me' : 'msg-them';
-            if(m.type === 'text') {
-                feed.innerHTML += `<div class="msg-bubble ${side}">${m.body}</div>`;
-            } else if(m.type === 'voice') {
-                feed.innerHTML += `
-                    <div class="msg-bubble ${side}" onclick="playAudio('${m.body}')" style="cursor:pointer;">
-                        <i class="fas fa-play-circle"></i> Səsli Mesaj
-                    </div>`;
-            }
+    function renderMsgs() {
+        const f = document.getElementById('msg-feed');
+        f.innerHTML = "";
+        const u = JSON.parse(localStorage.getItem('omega_v8_db')).find(x => x.id === activePeer);
+        u.msgs.forEach(m => {
+            const side = m.from === profile.id ? 'me' : 'them';
+            if(m.type === 'text') f.innerHTML += `<div class="bubble ${side}">${m.body}</div>`;
+            else if(m.type === 'voice') f.innerHTML += `<div class="bubble ${side}" onclick="new Audio('${m.body}').play()"><i class="fas fa-play"></i> Səsli mesaj</div>`;
         });
-        feed.scrollTop = feed.scrollHeight;
+        f.scrollTop = f.scrollHeight;
     }
 
-    // 3. VOICE ENGINE
-    async function voiceStart() {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.ondataavailable = e => voiceChunks.push(e.data);
-        mediaRecorder.onstop = () => {
-            const blob = new Blob(voiceChunks, { type: 'audio/ogg' });
+    async function startRec() {
+        const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recorder = new MediaRecorder(s);
+        recorder.ondataavailable = e => chunks.push(e.data);
+        recorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'audio/ogg' });
             const reader = new FileReader();
-            reader.onload = () => transmit({ from: myProfile.id, type: 'voice', body: reader.result });
+            reader.onload = () => saveAndSend({ from: profile.id, type: 'voice', body: reader.result });
             reader.readAsDataURL(blob);
-            voiceChunks = [];
+            chunks = [];
         };
-        mediaRecorder.start();
-        document.getElementById('voice-btn').style.color = 'var(--danger)';
+        recorder.start();
+        document.getElementById('rec-icon').style.color = 'red';
     }
 
-    function voiceStop() {
-        mediaRecorder.stop();
-        document.getElementById('voice-btn').style.color = 'var(--neon)';
+    function stopRec() {
+        recorder.stop();
+        document.getElementById('rec-icon').style.color = 'var(--neon)';
     }
 
-    function playAudio(data) { new Audio(data).play(); }
-
-    // 4. VIDEO CALL ENGINE (WebRTC)
-    async function initCall(type) {
-        document.getElementById('call-ui').style.display = 'flex';
-        document.getElementById('snd-ring').play();
-        
-        localStream = await navigator.mediaDevices.getUserMedia({ video: type==='video', audio: true });
-        document.getElementById('local-video').srcObject = localStream;
-
-        peerCall = myPeer.call(activeChat, localStream);
-        setupCallLogic(peerCall);
-    }
-
-    function receiveCall(call) {
-        document.getElementById('call-ui').style.display = 'flex';
-        document.getElementById('incoming-buttons').style.display = 'flex';
-        document.getElementById('snd-ring').play();
-        peerCall = call;
-    }
-
-    async function answerCall() {
-        document.getElementById('incoming-buttons').style.display = 'none';
-        document.getElementById('snd-ring').pause();
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        document.getElementById('local-video').srcObject = localStream;
-        peerCall.answer(localStream);
-        setupCallLogic(peerCall);
-    }
-
-    function setupCallLogic(call) {
-        call.on('stream', (remoteStream) => {
-            document.getElementById('snd-ring').pause();
-            document.getElementById('remote-video').srcObject = remoteStream;
-            document.getElementById('call-user').innerText = "CANLI BAĞLANTI";
+    async function call(type) {
+        document.getElementById('call-layer').style.display = 'flex';
+        localStr = await navigator.mediaDevices.getUserMedia({ video: type==='video', audio: true });
+        document.getElementById('local-v').srcObject = localStr;
+        callObj = peer.call(activePeer, localStr);
+        callObj.on('stream', s => {
+            document.getElementById('remote-v').srcObject = s;
+            document.getElementById('call-status').innerText = "CANLI BAĞLANTI";
         });
     }
 
-    function endCall() {
-        location.reload();
+    async function answer() {
+        document.getElementById('ring').pause();
+        document.getElementById('in-btns').style.display = 'none';
+        document.getElementById('out-btns').style.display = 'flex';
+        localStr = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('local-v').srcObject = localStr;
+        callObj.answer(localStr);
+        callObj.on('stream', s => {
+            document.getElementById('remote-v').srcObject = s;
+            document.getElementById('call-status').innerText = "CANLI BAĞLANTI";
+        });
     }
 
-    function closeChat() { document.getElementById('chat-window').classList.remove('active'); activeChat = null; }
-    function switchTab(t) { alert(t.toUpperCase() + " modulu növbəti yenilənmədə aktivləşəcək!"); }
-
-    // AUTO-BOOT
-    window.onload = () => { if(localStorage.getItem('omega_prof
+    function hangup() { location.reload(); }
+    function closeChat() { document.getElementById('chat-win').classList.remove('active'); }
+    function notify() { if(window.Notification && Notification.permission === "granted") new Notification("Yeni Mesaj!"); }
+    
+    window.onload = () => { boot(); if(window.Notification) Notification.requestPermission(); };
+</script>
+</body>
+</html>
