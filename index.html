@@ -2,243 +2,384 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sovereign V8 PRO</title>
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SOVEREIGN OMEGA - THE BOSS SYSTEM</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
     <style>
-        :root { --main: #00ff88; --bg: #000000; --card: #111; --text: #fff; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+        :root { --neon: #00ff88; --bg: #050505; --panel: #111; --text: #e0e0e0; --danger: #ff3b3b; --gold: #ffd700; }
+        
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
 
-        /* ANDROID ÜÇÜN GİRİŞ EKRANI */
-        #start-screen { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 25px; }
-        .logo { font-size: 80px; color: var(--main); text-shadow: 0 0 30px var(--main); margin-bottom: 20px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.6; transform: scale(1); } }
-        .btn-start { width: 85%; max-width: 320px; height: 75px; border-radius: 18px; border: none; font-size: 22px; font-weight: 900; letter-spacing: 2px; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
-        .btn-boss { background: var(--main); color: #000; box-shadow: 0 0 25px rgba(0, 255, 136, 0.4); }
-        .btn-guest { background: transparent; border: 3px solid var(--main); color: var(--main); }
-        .btn-start:active { transform: scale(0.95); }
+        /* 🔱 AUTH & PROFILE SETUP */
+        #setup-layer { position: fixed; inset: 0; background: var(--bg); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; transition: 0.5s; }
+        .setup-card { background: var(--panel); padding: 30px; border-radius: 25px; border: 1px solid var(--neon); box-shadow: 0 0 30px rgba(0,255,136,0.2); width: 100%; max-width: 400px; }
+        .profile-upload { width: 100px; height: 100px; border-radius: 50%; border: 2px dashed var(--neon); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; }
+        .profile-upload img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ƏSAS UI */
-        #app-ui { display: none; flex-direction: column; height: 100%; }
-        .header { padding: 20px 15px; background: var(--card); border-bottom: 2px solid var(--main); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .status { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; }
-        .searching { color: #ffaa00; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.3; } }
-        .online { color: var(--main); text-shadow: 0 0 10px var(--main); }
+        /* 🔱 MAIN DASHBOARD */
+        .master-grid { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; }
+        .top-bar { height: 80px; background: var(--panel); display: flex; align-items: center; padding: 0 20px; justify-content: space-between; border-bottom: 1px solid #222; }
+        
+        /* 🔱 CONTENT LAYERS */
+        .content-scroll { overflow-y: auto; padding: 15px; background: linear-gradient(180deg, #050505 0%, #0c0c0c 100%); }
+        .chat-card { background: #181818; padding: 18px; border-radius: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #222; transition: 0.3s; }
+        .chat-card:active { transform: scale(0.97); background: #222; }
+        .avatar-box { width: 55px; height: 55px; border-radius: 50%; background: #333; flex-shrink: 0; border: 2px solid var(--neon); overflow: hidden; }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* VİDEO SİSTEMİ (STABİL ANDROID) */
-        #video-overlay { position: fixed; inset: 0; background: #000; z-index: 4000; display: none; flex-direction: column; }
-        #remote-video { width: 100%; height: 100%; object-fit: cover; background: #050505; }
-        #local-video { position: absolute; top: 25px; right: 20px; width: 110px; height: 160px; background: #222; border: 2px solid var(--main); border-radius: 12px; object-fit: cover; transform: scaleX(-1); box-shadow: 0 0 20px rgba(0,0,0,0.8); }
-        .controls { position: absolute; bottom: 50px; width: 100%; display: flex; justify-content: center; gap: 25px; }
-        .c-btn { width: 70px; height: 70px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .hangup { background: #ff3333; box-shadow: 0 0 25px rgba(255, 51, 51, 0.5); }
-        .cam-btn { background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.3); }
+        /* 🔱 CHAT INTERFACE */
+        #chat-window { position: fixed; inset: 0; background: var(--bg); z-index: 1000; transform: translateX(100%); transition: 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); display: flex; flex-direction: column; }
+        #chat-window.active { transform: translateX(0); }
+        .msg-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .bubble { max-width: 75%; padding: 12px 18px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; }
+        .bubble.me { align-self: flex-end; background: var(--neon); color: #000; border-bottom-right-radius: 4px; font-weight: 500; }
+        .bubble.them { align-self: flex-start; background: #262626; color: #fff; border-bottom-left-radius: 4px; }
+        .voice-note { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 
-        /* CHAT (GÜCLÜ ŞİFRƏLƏMƏ İLƏ) */
-        .chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%); }
-        .msg { max-width: 85%; padding: 15px 20px; border-radius: 20px; font-size: 16px; line-height: 1.5; animation: slideIn 0.3s ease-out; word-wrap: break-word; }
-        @keyframes slideIn { from { transform: translateY(15px); opacity: 0; } }
-        .sent { align-self: flex-end; background: var(--main); color: #000; font-weight: bold; border-bottom-right-radius: 4px; box-shadow: -5px 5px 15px rgba(0,255,136,0.1); }
-        .received { align-self: flex-start; background: #1a1a1a; border: 1px solid #333; border-bottom-left-radius: 4px; }
+        /* 🔱 CALL SYSTEM UI */
+        #call-screen { position: fixed; inset: 0; background: #000; z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: space-around; padding: 80px 0; }
+        .call-anim { position: absolute; width: 300px; height: 300px; border: 2px solid var(--neon); border-radius: 50%; opacity: 0; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% {transform: scale(0.8); opacity: 0;} 50% {opacity: 0.5;} 100% {transform: scale(1.5); opacity: 0;} }
+        
+        /* 🔱 CONTROLS */
+        .boss-input { background: #1a1a1a; border: none; padding: 18px; border-radius: 15px; color: #fff; width: 100%; outline: none; font-size: 16px; border-bottom: 2px solid transparent; transition: 0.3s; }
+        .boss-input:focus { border-bottom-color: var(--neon); }
+        .btn-round { width: 60px; height: 60px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.4s; }
+        .btn-neon { background: var(--neon); color: #000; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
 
-        /* FOOTER */
-        .footer { padding: 18px; background: var(--card); display: flex; gap: 12px; border-top: 1px solid #222; }
-        input { flex: 1; background: #080808; border: 1px solid #333; color: white; padding: 16px 22px; border-radius: 35px; outline: none; font-size: 16px; transition: 0.3s; }
-        input:focus { border-color: var(--main); box-shadow: 0 0 10px rgba(0,255,136,0.2); }
-        .send-btn { width: 60px; height: 60px; border-radius: 50%; background: var(--main); border: none; font-size: 22px; cursor: pointer; color: #000; display: flex; align-items: center; justify-content: center; }
+        /* STATUS BAR MODAL */
+        #status-modal { position: fixed; bottom: 0; width: 100%; height: 80vh; background: var(--panel); z-index: 2000; border-radius: 30px 30px 0 0; display: none; padding: 30px; }
     </style>
 </head>
 <body>
 
-<div id="start-screen">
-    <div class="logo"><i class="fas fa-microchip"></i></div>
-    <h2 style="color:#fff; letter-spacing: 5px; font-weight: 900;">V8 PRO</h2>
-    <p style="color:#00ff88; font-size:11px; font-weight: bold; letter-spacing: 2px;">GLOBAL SECURE CORE</p>
-    
-    <button class="btn-start btn-boss" onclick="initApp('admin')">
-        <i class="fas fa-crown"></i> BOSS GİRİŞİ
-    </button>
-    
-    <button class="btn-start btn-guest" onclick="initApp('guest')">
-        <i class="fas fa-user-secret"></i> QONAQ GİRİŞİ
-    </button>
-</div>
-
-<div id="app-ui">
-    <div class="header">
-        <div>
-            <b style="color:var(--main); letter-spacing:2px; font-size: 18px;">SOVEREIGN</b><br>
-            <span id="status-txt" class="status searching">BAĞLANTI AXTARILIR...</span>
-        </div>
-        <div style="font-size:24px; color:var(--main); display:flex; gap:25px;">
-            <i class="fas fa-video-camera" onclick="startVideo()" style="cursor:pointer;"></i>
-            <i class="fas fa-sync-alt" onclick="location.reload()" style="cursor:pointer;"></i>
+    <div id="setup-layer">
+        <div class="setup-card">
+            <h1 style="font-family: 'Orbitron'; color: var(--neon);">SOVEREIGN OMEGA</h1>
+            <div class="profile-upload" onclick="document.getElementById('file-in').click()">
+                <img id="preview-img" src="" style="display:none;">
+                <i id="upload-icon" class="fas fa-camera"></i>
+            </div>
+            <input type="file" id="file-in" hidden onchange="processAvatar(event)">
+            <input type="text" id="boss-name" class="boss-input" placeholder="Adınızı Daxil Edin">
+            <button class="boss-input" style="background: var(--neon); color: #000; font-weight: 800; margin-top: 15px;" onclick="initBoss()">SİSTEMƏ DAXİL OL</button>
         </div>
     </div>
 
-    <div class="chat-box" id="chat"></div>
+    <div class="master-grid">
+        <div class="top-bar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="avatar-box" id="my-avatar-top"></div>
+                <div>
+                    <div id="display-name" style="font-weight:800; font-size:18px;">Boss</div>
+                    <div id="display-id" style="color:var(--neon); font-size:11px; font-family:'Orbitron';">ID: ...</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:20px; font-size:20px;">
+                <i class="fas fa-circle-notch" onclick="openStatus()" style="color:var(--gold);"></i>
+                <i class="fas fa-ellipsis-v" onclick="showSettings()"></i>
+            </div>
+        </div>
 
-    <div class="footer">
-        <input type="text" id="msgInput" placeholder="Sistem şifrəli..." autocomplete="off">
-        <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-    </div>
-</div>
+        <div class="content-scroll" id="contacts-list">
+            </div>
 
-<div id="video-overlay">
-    <video id="remote-video" autoplay playsinline></video>
-    <video id="local-video" autoplay muted playsinline></video>
-    <div class="controls">
-        <button class="c-btn hangup" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
-        <button class="c-btn cam-btn" onclick="toggleCam()"><i class="fas fa-video" id="cam-icon"></i></button>
+        <div class="top-bar" style="border-top:1px solid #222; border-bottom:none;">
+            <input type="text" id="new-contact-id" class="boss-input" style="height:50px;" placeholder="Yeni ID Əlavə Et">
+            <button class="btn-round btn-neon" style="width:50px; height:50px; margin-left:10px;" onclick="addContact()">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
     </div>
-</div>
+
+    <div id="chat-window">
+        <div class="top-bar">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <i class="fas fa-chevron-left" onclick="closeChat()"></i>
+                <div class="avatar-box" id="chat-avatar" style="width:40px; height:40px;"></div>
+                <div id="chat-name" style="font-weight:700;">Dost</div>
+            </div>
+            <div style="display:flex; gap:20px;">
+                <i class="fas fa-video" onclick="startCall('video')"></i>
+                <i class="fas fa-phone-alt" onclick="startCall('audio')"></i>
+            </div>
+        </div>
+        <div class="msg-container" id="msg-feed"></div>
+        <div class="top-bar" style="height:auto; padding:15px; border-top:1px solid #222;">
+            <button class="btn-round" style="background:transparent; color:var(--neon);" id="voice-btn" onmousedown="startVoice()" onmouseup="stopVoice()">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <input type="text" id="msg-input" class="boss-input" placeholder="Mesaj yazın...">
+            <button class="btn-round btn-neon" style="width:50px; height:50px; margin-left:10px;" onclick="sendPacket()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="call-screen">
+        <div class="call-anim"></div>
+        <div class="call-anim" style="animation-delay: 1s;"></div>
+        <div style="text-align:center; z-index:10;">
+            <div class="avatar-box" style="width:120px; height:120px; margin:0 auto 25px;">
+                <img id="call-img" src="">
+            </div>
+            <h2 id="call-user-name" style="font-family:'Orbitron';">BAĞLANTI...</h2>
+            <p id="call-status" style="color:var(--neon); letter-spacing:3px;">AES-256 ENCRYPTING</p>
+        </div>
+        <div style="display:flex; gap:40px; z-index:10;">
+            <button id="accept-btn" class="btn-round btn-neon" style="width:80px; height:80px; display:none;" onclick="answerCall()">
+                <i class="fas fa-phone"></i>
+            </button>
+            <button class="btn-round" style="width:80px; height:80px; background:var(--danger); color:#fff;" onclick="killAll()">
+                <i class="fas fa-phone-slash"></i>
+            </button>
+        </div>
+        <video id="remote-v" autoplay playsinline style="position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1; display:none;"></video>
+    </div>
+
+    <audio id="ringtone" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
+    <audio id="msg-tone" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3"></audio>
 
 <script>
-    // 🔱 KONFİQURASİYA
-    const SECRET_KEY = "V8_GLOBAL_ULTRA_CORE_SECURE_99";
-    const ROOM_ID = "sovereign_v8_matrix_2026"; 
+    /* 🔱 SOVEREIGN OMEGA ENGINE - THE BOSS PROTOCOL */
+    const MASTER_KEY = "BOSS_GHOST_OMEGA_99";
+    let myPeer, myConfig, activeCall, activeStream, activeConn;
+    let chatID = null;
+    let mediaRecorder, voiceChunks = [];
 
-    let peer, conn, localStream, myRole, targetID, peerID;
+    // 1. İNİSİALİZASİYA (ÖMÜRLÜK PROFİL)
+    function processAvatar(e) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            document.getElementById('preview-img').src = reader.result;
+            document.getElementById('preview-img').style.display = 'block';
+            document.getElementById('upload-icon').style.display = 'none';
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    }
 
-    // XOR + Base64 GÜCLÜ ŞİFRƏLƏMƏ
-    const encrypt = (t) => btoa(t.split('').map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ SECRET_KEY.charCodeAt(i % SECRET_KEY.length))).join(''));
-    const decrypt = (e) => { try { return atob(e).split('').map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ SECRET_KEY.charCodeAt(i % SECRET_KEY.length))).join(''); } catch { return "🔒 Şifrəli Verilən"; }};
+    function initBoss() {
+        const name = document.getElementById('boss-name').value.trim();
+        const img = document.getElementById('preview-img').src;
+        if(!name) return;
 
-    function initApp(role) {
-        myRole = role;
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('app-ui').style.display = 'flex';
+        const bossID = "BOSS-" + Math.floor(100000 + Math.random() * 900000);
+        myConfig = { id: bossID, name: name, avatar: img, status: "Sovereign Omega Active" };
         
-        peerID = role === 'admin' ? "boss_" + ROOM_ID : "guest_" + ROOM_ID;
-        targetID = role === 'admin' ? "guest_" + ROOM_ID : "boss_" + ROOM_ID;
-
-        startPeer();
+        localStorage.setItem('boss_profile_v2', JSON.stringify(myConfig));
+        bootSystem();
     }
 
-    function startPeer() {
-        // RUSİYA VƏ QLOBAL ÜÇÜN STABİL TURN/STUN SERVERLƏR
-        peer = new Peer(peerID, {
-            config: { 'iceServers': [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' },
-                { urls: 'stun:stun.global.calls.net' }
-            ], 'iceCandidatePoolSize': 10 }
+    function bootSystem() {
+        const stored = JSON.parse(localStorage.getItem('boss_profile_v2'));
+        if(!stored) return;
+
+        myConfig = stored;
+        document.getElementById('setup-layer').style.display = 'none';
+        document.getElementById('display-name').innerText = myConfig.name;
+        document.getElementById('display-id').innerText = "ID: " + myConfig.id;
+        document.getElementById('my-avatar-top').innerHTML = `<img src="${myConfig.avatar}">`;
+
+        myPeer = new Peer(myConfig.id, {
+            config: { 'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] }
         });
 
-        peer.on('open', () => {
-            updateStatus("Dostun Axtarılır...", true);
-            autoConnect(); 
-        });
-
-        peer.on('connection', (c) => {
-            conn = c;
-            setupConnection();
-        });
-
-        peer.on('call', async (call) => {
-            if(confirm("📞 VİDEO ZƏNG GƏLİR! Qəbul edilsin?")) {
-                await openCamera();
-                call.answer(localStream);
-                call.on('stream', (s) => document.getElementById('remote-video').srcObject = s);
-            }
-        });
-
-        peer.on('error', (err) => {
-            console.log("Sistem Xətası:", err.type);
-            if(err.type === 'peer-unavailable') {
-                updateStatus("Dostun Gözlənilir...", true);
-            }
-            setTimeout(autoConnect, 3000);
-        });
+        myPeer.on('connection', handleDataChannel);
+        myPeer.on('call', handleIncomingCall);
+        
+        renderContacts();
     }
 
-    // AVTOMATİK İKİTƏRƏFLİ QOŞULMA (BOSS VƏ QONAQ BİR-BİRİNİ AXTARIR)
-    function autoConnect() {
-        if (!conn || !conn.open) {
-            conn = peer.connect(targetID, { 
-                reliable: true,
-                connectionOptions: { 'keepaliveInterval': 10000 }
-            });
-            setupConnection();
+    // 2. DATA BAZA VƏ ŞİFRƏLƏMƏ
+    const Crypto = {
+        seal: (data) => CryptoJS.AES.encrypt(JSON.stringify(data), MASTER_KEY).toString(),
+        open: (cipher) => {
+            try { 
+                const bytes = CryptoJS.AES.decrypt(cipher, MASTER_KEY);
+                return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+            } catch(e) { return null; }
         }
+    };
+
+    function addContact() {
+        const id = document.getElementById('new-contact-id').value.trim();
+        if(!id || id === myConfig.id) return;
+
+        let db = JSON.parse(localStorage.getItem('boss_db') || "[]");
+        if(!db.find(x => x.id === id)) {
+            db.push({ id: id, name: "User-" + id.split('-')[1], messages: [], avatar: '' });
+            localStorage.setItem('boss_db', JSON.stringify(db));
+        }
+        renderContacts();
+        document.getElementById('new-contact-id').value = "";
     }
 
-    function setupConnection() {
+    function renderContacts() {
+        const list = document.getElementById('contacts-list');
+        list.innerHTML = "";
+        let db = JSON.parse(localStorage.getItem('boss_db') || "[]");
+
+        db.forEach(c => {
+            list.innerHTML += `
+                <div class="chat-card" onclick="openChat('${c.id}')">
+                    <div class="avatar-box">${c.avatar ? `<img src="${c.avatar}">` : ''}</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:700;">${c.name}</div>
+                        <div style="font-size:12px; color:#666;">Son mesaj şifrəlidir...</div>
+                    </div>
+                    <div style="font-size:10px; color:var(--neon);">ONLAYN</div>
+                </div>
+            `;
+        });
+    }
+
+    // 3. MESAJLAŞMA VƏ SƏS
+    function openChat(id) {
+        chatID = id;
+        const db = JSON.parse(localStorage.getItem('boss_db'));
+        const user = db.find(x => x.id === id);
+        
+        document.getElementById('chat-window').classList.add('active');
+        document.getElementById('chat-name').innerText = user.name;
+        document.getElementById('chat-avatar').innerHTML = user.avatar ? `<img src="${user.avatar}">` : '';
+        
+        loadMessages();
+    }
+
+    function sendPacket() {
+        const txt = document.getElementById('msg-input').value.trim();
+        if(!txt) return;
+
+        const packet = { type: 'TEXT', body: txt, from: myConfig.id, time: Date.now() };
+        saveAndSend(packet);
+        document.getElementById('msg-input').value = "";
+    }
+
+    function saveAndSend(packet) {
+        // Local yaddaşa yaz
+        let db = JSON.parse(localStorage.getItem('boss_db'));
+        let idx = db.findIndex(x => x.id === chatID);
+        db[idx].messages.push(packet);
+        localStorage.setItem('boss_db', JSON.stringify(db));
+        
+        // P2P Göndər
+        const conn = myPeer.connect(chatID);
         conn.on('open', () => {
-            updateStatus("ONLAYN ● LİVE 🔒", false);
-            displayMessage("Təhlükəsiz xətt quruldu. Danışa bilərsiniz.", "received");
+            conn.send(Crypto.seal(packet));
         });
+
+        loadMessages();
+    }
+
+    function handleDataChannel(conn) {
+        conn.on('data', (cipher) => {
+            const data = Crypto.open(cipher);
+            if(data) {
+                let db = JSON.parse(localStorage.getItem('boss_db'));
+                let idx = db.findIndex(x => x.id === data.from);
+                if(idx !== -1) {
+                    db[idx].messages.push(data);
+                    localStorage.setItem('boss_db', JSON.stringify(db));
+                    document.getElementById('msg-tone').play();
+                    if(chatID === data.from) loadMessages();
+                }
+            }
+        });
+    }
+
+    function loadMessages() {
+        const feed = document.getElementById('msg-feed');
+        feed.innerHTML = "";
+        let db = JSON.parse(localStorage.getItem('boss_db'));
+        let user = db.find(x => x.id === chatID);
+
+        user.messages.forEach(m => {
+            const side = m.from === myConfig.id ? 'me' : 'them';
+            if(m.type === 'TEXT') {
+                feed.innerHTML += `<div class="bubble ${side}">${m.body}</div>`;
+            } else if(m.type === 'VOICE') {
+                feed.innerHTML += `
+                    <div class="bubble ${side} voice-note" onclick="playVoice('${m.body}')">
+                        <i class="fas fa-play"></i> <span>Səsli Mesaj</span>
+                    </div>`;
+            }
+        });
+        feed.scrollTop = feed.scrollHeight;
+    }
+
+    // 4. SƏSLİ MESAJ MOTORU
+    async function startVoice() {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e => voiceChunks.push(e.data);
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(voiceChunks, { type: 'audio/ogg; codecs=opus' });
+            const reader = new FileReader();
+            reader.onload = () => {
+                saveAndSend({ type: 'VOICE', body: reader.result, from: myConfig.id, time: Date.now() });
+            };
+            reader.readAsDataURL(blob);
+            voiceChunks = [];
+        };
+        mediaRecorder.start();
+        document.getElementById('voice-btn').style.color = 'var(--danger)';
+    }
+
+    function stopVoice() {
+        mediaRecorder.stop();
+        document.getElementById('voice-btn').style.color = 'var(--neon)';
+    }
+
+    function playVoice(data) {
+        new Audio(data).play();
+    }
+
+    // 5. HD ZƏNG SİSTEMİ (OFLAYN TRIGGER)
+    async function startCall(type) {
+        document.getElementById('call-screen').style.display = 'flex';
+        document.getElementById('ringtone').play();
         
-        conn.on('data', (d) => {
-            if(d.type === 'msg') displayMessage(decrypt(d.content), 'received');
-        });
-
-        conn.on('close', () => {
-            updateStatus("Bağlantı İtdi...", true);
-            setTimeout(autoConnect, 2000);
-        });
-    }
-
-    function sendMessage() {
-        const input = document.getElementById('msgInput');
-        const text = input.value.trim();
-        if (text && conn && conn.open) {
-            conn.send({ type: 'msg', content: encrypt(text) });
-            displayMessage(text, 'sent');
-            input.value = '';
-        }
-    }
-
-    function displayMessage(txt, type) {
-        const div = document.createElement('div');
-        div.className = `msg ${type}`;
-        div.innerText = txt;
-        document.getElementById('chat').appendChild(div);
-        document.getElementById('chat').scrollTop = 99999;
-    }
-
-    function updateStatus(txt, isSearching) {
-        const el = document.getElementById('status-txt');
-        el.innerText = txt;
-        el.className = isSearching ? "status searching" : "status online";
-    }
-
-    async function openCamera() {
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }, 
-                audio: true 
-            });
-            document.getElementById('video-overlay').style.display = 'flex';
-            document.getElementById('local-video').srcObject = localStream;
-        } catch(e) { 
-            alert("⚠️ Kamera icazəsi tələb olunur!"); 
-        }
+            activeStream = await navigator.mediaDevices.getUserMedia({ video: type==='video', audio: true });
+            const call = myPeer.call(chatID, activeStream);
+            setupCallFlow(call);
+        } catch(e) { killAll(); }
     }
 
-    async function startVideo() {
-        await openCamera();
-        const call = peer.call(targetID, localStream);
-        call.on('stream', (s) => document.getElementById('remote-video').srcObject = s);
+    function handleIncomingCall(call) {
+        document.getElementById('call-screen').style.display = 'flex';
+        document.getElementById('accept-btn').style.display = 'block';
+        document.getElementById('ringtone').play();
+        activeCall = call;
     }
 
-    function endCall() {
-        if(localStream) localStream.getTracks().forEach(t => t.stop());
-        document.getElementById('video-overlay').style.display = 'none';
-        location.reload();
+    async function answerCall() {
+        document.getElementById('ringtone').pause();
+        activeStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        activeCall.answer(activeStream);
+        setupCallFlow(activeCall);
     }
 
-    function toggleCam() {
-        const track = localStream.getVideoTracks()[0];
-        track.enabled = !track.enabled;
-        document.getElementById('cam-icon').className = track.enabled ? "fas fa-video" : "fas fa-video-slash";
+    function setupCallFlow(call) {
+        call.on('stream', (remoteStream) => {
+            document.getElementById('ringtone').pause();
+            const rv = document.getElementById('remote-v');
+            rv.srcObject = remoteStream;
+            rv.style.display = 'block';
+            document.getElementById('call-status').innerText = "LIVE CONNECTION";
+        });
     }
+
+    function killAll() { location.reload(); }
+    function closeChat() { document.getElementById('chat-window').classList.remove('active'); chatID = null; }
+
+    window.onload = () => { if(localStorage.getItem('boss_profile_v2')) bootSystem(); };
 </script>
 </body>
 </html>
