@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sovereign V7 App</title>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --main: #00ff88; --bg: #000000; --card: #111; --text: #fff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* GİRİŞ EKRANI (APP MODU) */
+        #start-screen { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 25px; }
+        .logo { font-size: 60px; color: var(--main); text-shadow: 0 0 25px var(--main); margin-bottom: 20px; }
+        .btn-start { width: 80%; max-width: 300px; height: 70px; border-radius: 15px; border: none; font-size: 20px; font-weight: 900; letter-spacing: 2px; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .btn-boss { background: var(--main); color: #000; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); }
+        .btn-guest { background: transparent; border: 3px solid var(--main); color: var(--main); }
+        .btn-start:active { transform: scale(0.95); }
+
+        /* ƏSAS EKRAN */
+        #app-ui { display: none; flex-direction: column; height: 100%; }
+        .header { padding: 15px; background: var(--card); border-bottom: 1px solid var(--main); display: flex; justify-content: space-between; align-items: center; }
+        .status { font-size: 12px; color: #888; }
+        .online { color: var(--main); text-shadow: 0 0 10px var(--main); }
+
+        /* VİDEO UI */
+        #video-overlay { position: fixed; inset: 0; background: #000; z-index: 4000; display: none; flex-direction: column; }
+        #remote-video { width: 100%; height: 100%; object-fit: cover; }
+        #local-video { position: absolute; top: 20px; right: 20px; width: 100px; height: 150px; background: #222; border: 2px solid var(--main); border-radius: 10px; object-fit: cover; transform: scaleX(-1); }
+        .controls { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 20px; }
+        .c-btn { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; }
+        .hangup { background: #ff3333; }
+        .cam-btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); }
+
+        /* CHAT */
+        .chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); }
+        .msg { max-width: 80%; padding: 12px 16px; border-radius: 12px; font-size: 15px; word-break: break-word; }
+        .sent { align-self: flex-end; background: var(--main); color: #000; font-weight: bold; }
+        .received { align-self: flex-start; background: #222; border: 1px solid #444; }
+
+        /* FOOTER */
+        .footer { padding: 15px; background: var(--card); display: flex; gap: 10px; }
+        input { flex: 1; background: #000; border: 1px solid #333; color: white; padding: 15px; border-radius: 30px; outline: none; font-size: 16px; }
+        .send-btn { width: 55px; height: 55px; border-radius: 50%; background: var(--main); border: none; font-size: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="start-screen">
+    <div class="logo"><i class="fas fa-fingerprint"></i></div>
+    <h2 style="color:#fff;">SOVEREIGN V7</h2>
+    <p style="color:#666; font-size:12px;">SECURE ENCRYPTED LINE</p>
+    
+    <button class="btn-start btn-boss" onclick="initApp('admin')">
+        <i class="fas fa-crown"></i> BOSS GİRİŞİ
+    </button>
+    
+    <button class="btn-start btn-guest" onclick="initApp('guest')">
+        <i class="fas fa-user-secret"></i> QONAQ GİRİŞİ
+    </button>
+</div>
+
+<div id="app-ui">
+    <div class="header">
+        <div>
+            <b style="color:var(--main); letter-spacing:1px;">SOVEREIGN</b><br>
+            <span id="status-txt" class="status">GÖZLƏYİR...</span>
+        </div>
+        <div style="font-size:22px; color:var(--main); display:flex; gap:20px;">
+            <i class="fas fa-video" onclick="startVideo()"></i>
+            <i class="fas fa-power-off" onclick="location.reload()"></i>
+        </div>
+    </div>
+
+    <div class="chat-box" id="chat"></div>
+
+    <div class="footer">
+        <input type="text" id="msgInput" placeholder="Şifrəli mesaj..." autocomplete="off">
+        <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<div id="video-overlay">
+    <video id="remote-video" autoplay playsinline></video>
+    <video id="local-video" autoplay muted playsinline></video>
+    <div class="controls">
+        <button class="c-btn hangup" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
+        <button class="c-btn cam-btn" onclick="toggleCam()"><i class="fas fa-camera"></i></button>
+    </div>
+</div>
+
+<script>
+    // 🔱 ŞİFRƏLƏMƏ AÇARI
+    const SECRET_KEY = "BOSS_V7_SUPER_SECURE";
+    const ROOM_ID = "sovereign_room_001"; // Sabit otaq
+
+    let peer, conn, localStream, myRole;
+    let peerID, targetID;
+
+    // Şifrələmə Funksiyaları
+    const encrypt = (text) => {
+        return btoa(text.split('').map((c, i) => 
+            String.fromCharCode(c.charCodeAt(0) ^ SECRET_KEY.charCodeAt(i % SECRET_KEY.length))).join(''));
+    };
+
+    const decrypt = (encoded) => {
+        try {
+            return atob(encoded).split('').map((c, i) => 
+                String.fromCharCode(c.charCodeAt(0) ^ SECRET_KEY.charCodeAt(i % SECRET_KEY.length))).join('');
+        } catch (e) { return "[Şifrə Xətası]"; }
+    };
+
+    // Sistemi Başlatmaq (Buttona basanda)
+    function initApp(role) {
+        myRole = role;
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('app-ui').style.display = 'flex';
+
+        if (role === 'admin') {
+            peerID = "admin_" + ROOM_ID;
+            targetID = "guest_" + ROOM_ID;
+        } else {
+            peerID = "guest_" + ROOM_ID;
+            targetID = "admin_" + ROOM_ID;
+        }
+
+        startPeer();
+    }
+
+    function startPeer() {
+        peer = new Peer(peerID, {
+            config: { 'iceServers': [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun.global.calls.net' }
+            ]}
+        });
+
+        peer.on('open', (id) => {
+            updateStatus("SİSTEM HAZIRDIR", false);
+            if (myRole === 'guest') connectToBoss();
+        });
+
+        peer.on('connection', (c) => {
+            conn = c;
+            setupConnection();
+        });
+
+        peer.on('call', async (call) => {
+            if(confirm("📞 VİDEO ZƏNG GƏLİR! Qəbul edirsən?")) {
+                await openCamera();
+                call.answer(localStream);
+                call.on('stream', (stream) => {
+                    document.getElementById('remote-video').srcObject = stream;
+                });
+            }
+        });
+
+        peer.on('error', (err) => {
+            console.log(err);
+            if(myRole === 'guest') setTimeout(connectToBoss, 2000); // Auto-retry
+        });
+    }
+
+    function connectToBoss() {
+        updateStatus("BOSS AXTARILIR...", false);
+        conn = peer.connect(targetID);
+        setupConnection();
+    }
+
+    function setupConnection() {
+        conn.on('open', () => {
+            updateStatus("BAĞLANDI 🔒", true);
+            // Salam mesajı göndər (Test üçün)
+            conn.send({type: 'ping'});
+        });
+        
+        conn.on('data', (data) => {
+            if(data.type === 'msg') {
+                displayMessage(decrypt(data.content), 'received');
+            }
+        });
+
+        conn.on('close', () => {
+            updateStatus("ƏLAQƏ KƏSİLDİ ❌", false);
+            if(myRole === 'guest') setTimeout(connectToBoss, 3000);
+        });
+    }
+
+    // Mesaj Göndərmə
+    function sendMessage() {
+        const input = document.getElementById('msgInput');
+        const text = input.value.trim();
+        if (text && conn && conn.open) {
+            conn.send({ type: 'msg', content: encrypt(text) });
+            displayMessage(text, 'sent');
+            input.value = '';
+        }
+    }
+
+    function displayMessage(txt, type) {
+        const div = document.createElement('div');
+        div.className = `msg ${type}`;
+        div.innerText = txt;
+        document.getElementById('chat').appendChild(div);
+        document.getElementById('chat').scrollTop = 99999;
+    }
+
+    function updateStatus(txt, isOnline) {
+        const el = document.getElementById('status-txt');
+        el.innerText = txt;
+        if(isOnline) el.classList.add('online');
+        else el.classList.remove('online');
+    }
+
+    // Video İşləri
+    async function openCamera() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+            document.getElementById('video-overlay').style.display = 'flex';
+            document.getElementById('local-video').srcObject = localStream;
+        } catch(e) {
+            alert("⚠️ Kamera icazəsi verilmədi! Saytın kilid (🔒) ikonuna basıb icazə verin.");
+        }
+    }
+
+    async function startVideo() {
+        await openCamera();
+        const call = peer.call(targetID, localStream);
+        call.on('stream', (stream) => {
+            document.getElementById('remote-video').srcObject = stream;
+        });
+    }
+
+    function endCall() {
+        if(localStream) localStream.getTracks().forEach(t => t.stop());
+        document.getElementById('video-overlay').style.display = 'none';
+        location.reload();
+    }
+
+    function toggleCam() {
+        const track = localStream.getVideoTracks()[0];
+        track.enabled = !track.enabled;
+    }
+</script>
+</body>
+</html>
