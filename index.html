@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ISMAIL BOSS | V39 TOTAL ECLIPSE</title>
+    <title>ISMAIL BOSS | V40 PHANTOM</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
@@ -11,379 +11,385 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <style>
-        :root { --neon: #00ff41; --danger: #ff003c; --blue: #00f2ff; --bg: #050505; }
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; outline: none; }
+        :root { --neon: #00ff41; --danger: #ff003c; --blue: #00f2ff; --bg: #000000; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; outline: none; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; font-family: 'Orbitron', sans-serif; }
 
-        /* MATRIX ARXA FON */
-        #matrix-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.2; }
+        /* ARXA PLAN */
+        #matrix-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.15; }
+
+        /* 1. INTRO (3 Saniyə) */
+        #intro-screen { position: fixed; inset: 0; z-index: 5000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .intro-txt { font-size: 2.5rem; color: var(--neon); letter-spacing: 4px; animation: glitch 0.3s infinite; text-align: center; }
+
+        /* 2. LOGIN */
+        #login-screen { position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+        .role-btn { width: 280px; padding: 25px; border: 2px solid var(--neon); background: transparent; color: var(--neon); font-size: 1.2rem; font-weight: 900; cursor: pointer; transition: 0.2s; font-family: 'Orbitron'; }
+        .role-btn:active { background: var(--neon); color: #000; transform: scale(0.95); }
+        .boss-style { border-color: var(--blue); color: var(--blue); }
+        .boss-style:active { background: var(--blue); }
+
+        /* 3. SCAN (Status Ekranı) */
+        #scan-screen { position: fixed; inset: 0; z-index: 3000; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .radar-ring { width: 200px; height: 200px; border: 2px solid #333; border-radius: 50%; position: relative; box-shadow: 0 0 30px var(--neon); }
+        .radar-line { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(transparent 270deg, var(--neon)); animation: spin 2s linear infinite; }
+        .status-log { margin-top: 40px; color: var(--neon); font-family: 'Share Tech Mono'; font-size: 14px; text-align: center; line-height: 1.5; min-height: 50px; }
+        .retry-btn { margin-top: 20px; padding: 10px 30px; background: var(--danger); border: none; color: white; display: none; cursor: pointer; font-weight: bold; animation: pulse 1s infinite; }
+
+        /* 4. MAIN APP */
+        #app-screen { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; background: #050505; }
+        .top-bar { padding: 15px; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; background: #000; box-shadow: 0 5px 20px rgba(0,255,65,0.1); }
+        .feed { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .bubble { padding: 12px 18px; border-radius: 6px; max-width: 85%; font-family: 'Share Tech Mono'; font-size: 15px; word-break: break-word; position: relative; }
+        .me { align-self: flex-end; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--blue); color: var(--blue); border-right: 4px solid var(--blue); }
+        .them { align-self: flex-start; background: rgba(0, 255, 65, 0.1); border: 1px solid var(--neon); color: var(--neon); border-left: 4px solid var(--neon); }
         
-        /* 1. INTRO LAYER (5 Saniyəlik Reklam) */
-        #intro-layer { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .intro-text { font-size: 2rem; color: var(--neon); letter-spacing: 5px; animation: glitch 0.2s infinite; }
-        
-        /* 2. LOGIN LAYER */
-        #login-layer { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .login-btn { width: 80%; max-width: 300px; padding: 20px; margin: 15px; border: 2px solid var(--neon); background: transparent; color: var(--neon); font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
-        .login-btn:hover { background: var(--neon); color: #000; box-shadow: 0 0 30px var(--neon); }
-        .boss-btn { border-color: var(--blue); color: var(--blue); }
-        .boss-btn:hover { background: var(--blue); box-shadow: 0 0 30px var(--blue); }
+        .bot-bar { padding: 15px; background: #000; border-top: 1px solid var(--neon); display: flex; gap: 15px; align-items: center; }
+        .msg-box { flex: 1; background: #111; border: 1px solid #333; color: white; padding: 15px; font-family: 'Share Tech Mono'; border-radius: 4px; }
 
-        /* 3. SCAN LAYER (Bloklama Ekranı) */
-        #scan-layer { position: fixed; inset: 0; background: #000; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .radar { width: 250px; height: 250px; border: 2px solid #333; border-radius: 50%; position: relative; box-shadow: 0 0 50px rgba(0, 255, 65, 0.2); }
-        .sweep { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(transparent 200deg, var(--neon)); animation: rotate 2s linear infinite; opacity: 0.5; }
-        .scan-status { margin-top: 40px; color: var(--neon); font-family: 'Share Tech Mono'; letter-spacing: 3px; animation: blink 1s infinite; }
+        /* 5. CALL OVERLAY */
+        #call-ui { position: fixed; inset: 0; z-index: 6000; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .call-icon { font-size: 80px; color: var(--neon); margin-bottom: 20px; animation: vibrate 0.5s infinite; }
+        .call-txt { font-size: 2rem; color: #fff; margin-bottom: 50px; text-align: center; letter-spacing: 2px; }
+        .btn-row { display: flex; gap: 40px; }
+        .c-btn { width: 75px; height: 75px; border-radius: 50%; border: none; font-size: 30px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .accept { background: #00c853; box-shadow: 0 0 25px #00c853; }
+        .reject { background: #d50000; box-shadow: 0 0 25px #d50000; }
 
-        /* 4. APP CORE */
-        #app-core { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; background: rgba(0,10,0,0.9); }
-        .header { padding: 20px; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; background: #000; }
-        .status-dot { width: 10px; height: 10px; background: var(--neon); border-radius: 50%; display: inline-block; box-shadow: 0 0 10px var(--neon); }
-        
-        .chat-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .bubble { max-width: 80%; padding: 15px; border-radius: 8px; font-family: 'Share Tech Mono'; font-size: 14px; word-wrap: break-word; }
-        .me { align-self: flex-end; border: 1px solid var(--blue); color: var(--blue); background: rgba(0, 242, 255, 0.05); }
-        .them { align-self: flex-start; border: 1px solid var(--neon); color: var(--neon); background: rgba(0, 255, 65, 0.05); }
+        /* 6. VIDEO */
+        #vid-layer { position: fixed; inset: 0; z-index: 5500; background: #000; display: none; }
+        #remote-v { width: 100%; height: 100%; object-fit: cover; }
+        #local-v { position: absolute; top: 20px; right: 20px; width: 100px; height: 150px; border: 2px solid var(--neon); background: #000; object-fit: cover; border-radius: 5px; }
+        .end-call { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: var(--danger); border-radius: 50%; border: none; color: #fff; font-size: 25px; cursor: pointer; }
 
-        .input-area { padding: 15px; background: #000; border-top: 1px solid var(--neon); display: flex; gap: 15px; align-items: center; }
-        .msg-input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 15px; font-family: 'Share Tech Mono'; border-radius: 5px; }
-
-        /* 5. CALL UI */
-        #call-modal { position: fixed; inset: 0; z-index: 6000; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .avatar-circle { width: 120px; height: 120px; border: 3px solid var(--neon); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; color: var(--neon); margin-bottom: 30px; animation: pulse 1.5s infinite; }
-        .call-actions { display: flex; gap: 40px; margin-top: 50px; }
-        .c-btn { width: 70px; height: 70px; border-radius: 50%; border: none; font-size: 25px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-green { background: #00c853; box-shadow: 0 0 20px #00c853; }
-        .btn-red { background: #d50000; box-shadow: 0 0 20px #d50000; }
-
-        /* 6. VIDEO STAGE */
-        #video-stage { position: fixed; inset: 0; z-index: 5500; background: #000; display: none; }
-        #remote-vid { width: 100%; height: 100%; object-fit: cover; }
-        #local-vid { position: absolute; top: 20px; right: 20px; width: 100px; height: 150px; border: 2px solid var(--neon); background: #000; border-radius: 8px; object-fit: cover; }
-        .hangup-float { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; border-radius: 50%; background: red; border: none; color: white; font-size: 24px; cursor: pointer; box-shadow: 0 0 20px red; }
-
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes glitch { 0% { transform: skew(5deg); opacity: 0.8; } 20% { transform: skew(-5deg); opacity: 1; } 100% { transform: skew(0deg); } }
-        @keyframes blink { 50% { opacity: 0.4; } }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,255,65, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(0,255,65, 0); } 100% { box-shadow: 0 0 0 0 rgba(0,255,65, 0); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes glitch { 0% { transform: skew(10deg); opacity: 0.8; } 100% { transform: skew(-10deg); opacity: 1; } }
+        @keyframes vibrate { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
+        @keyframes pulse { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
-    <canvas id="matrix-canvas"></canvas>
+    <canvas id="matrix-bg"></canvas>
 
-    <div id="intro-layer">
-        <h1 id="intro-txt" class="intro-text">ISMAIL BOSS</h1>
+    <div id="intro-screen">
+        <h1 class="intro-txt">V40 PHANTOM</h1>
+        <small style="color:#555; margin-top:10px;">ENCRYPTED SYSTEM INITIALIZING...</small>
     </div>
 
-    <div id="login-layer">
-        <h2 style="color:var(--neon); margin-bottom:30px; letter-spacing:3px;">SİSTEMƏ GİRİŞ</h2>
-        <button class="login-btn boss-btn" onclick="startScan('BOSS')">BOSS (ADMIN)</button>
-        <button class="login-btn" onclick="startScan('GUEST')">QONAQ (GUEST)</button>
+    <div id="login-screen">
+        <button class="role-btn boss-style" onclick="bootSystem('BOSS')">BOSS (HOST)</button>
+        <button class="role-btn" onclick="bootSystem('GUEST')">QONAQ (JOIN)</button>
     </div>
 
-    <div id="scan-layer">
-        <div class="radar"><div class="sweep"></div></div>
-        <h3 id="scan-msg" class="scan-status">ŞƏBƏKƏ SKAN EDİLİR...</h3>
-        <small style="color:#555; margin-top:10px;">Qarşı tərəf tapılana qədər gözləyin</small>
+    <div id="scan-screen">
+        <div class="radar-ring"><div class="radar-line"></div></div>
+        <div class="status-log" id="status-log">NETWORK SCANNING...</div>
+        <button class="retry-btn" id="force-btn" onclick="forceRetry()">MƏCBURİ QOŞUL</button>
     </div>
 
-    <div id="app-core">
-        <div class="header">
-            <div>
-                <b style="color:var(--neon)">V39 TOTAL ECLIPSE</b><br>
-                <small style="color:var(--blue); font-size:10px;">AES-256 + BASE64</small>
-            </div>
-            <div style="display:flex; align-items:center; gap:20px;">
-                <span class="status-dot"></span>
-                <i class="fas fa-video fa-lg" style="color:var(--blue); cursor:pointer;" onclick="makeCallRequest('video')"></i>
-                <i class="fas fa-phone-alt fa-lg" style="color:var(--neon); cursor:pointer;" onclick="makeCallRequest('audio')"></i>
+    <div id="app-screen">
+        <div class="top-bar">
+            <div><b style="color:var(--neon)">ISMAIL BOSS V40</b><br><small style="color:#888; font-size:10px;">SECURE TUNNEL ACTIVE</small></div>
+            <div style="display:flex; gap:20px;">
+                <i class="fas fa-video fa-lg" style="color:var(--blue)" onclick="prepCall('video')"></i>
+                <i class="fas fa-phone-alt fa-lg" style="color:var(--neon)" onclick="prepCall('audio')"></i>
             </div>
         </div>
-        <div class="chat-area" id="chat-feed"></div>
-        <div class="input-area">
-            <i class="fas fa-microphone fa-lg" id="mic-btn" style="color:var(--neon); cursor:pointer;" onmousedown="recStart()" onmouseup="recStop()" ontouchstart="recStart()" ontouchend="recStop()"></i>
-            <input type="text" id="msg-input" class="msg-input" placeholder="Şifrəli mesaj yaz...">
-            <i class="fas fa-paper-plane fa-lg" style="color:var(--blue); cursor:pointer;" onclick="sendTxt()"></i>
+        <div class="feed" id="chat-feed"></div>
+        <div class="bot-bar">
+            <i class="fas fa-microphone fa-lg" id="mic-icon" style="color:var(--neon)" onmousedown="recOn()" onmouseup="recOff()" ontouchstart="recOn()" ontouchend="recOff()"></i>
+            <input type="text" class="msg-box" id="msg-in" placeholder="Şifrəli mesaj...">
+            <i class="fas fa-paper-plane fa-lg" style="color:var(--blue)" onclick="sendTxt()"></i>
         </div>
     </div>
 
-    <div id="call-modal">
-        <div class="avatar-circle"><i class="fas fa-user-secret"></i></div>
-        <h2 id="call-status" style="color:#fff; margin-bottom:10px;">GƏLƏN ZƏNG</h2>
-        <h3 id="call-type" style="color:var(--blue);">GÖRÜNTÜLÜ</h3>
-        
-        <div id="incoming-btns" class="call-actions" style="display:none;">
-            <button class="c-btn btn-red" onclick="rejectCall()"><i class="fas fa-times"></i></button>
-            <button class="c-btn btn-green" onclick="acceptCall()"><i class="fas fa-phone"></i></button>
+    <div id="call-ui">
+        <i class="fas fa-user-secret call-icon"></i>
+        <div class="call-txt" id="call-txt">GƏLƏN ZƏNG...</div>
+        <div id="inc-btns" class="btn-row" style="display:none;">
+            <button class="c-btn reject" onclick="answerCall(false)"><i class="fas fa-times"></i></button>
+            <button class="c-btn accept" onclick="answerCall(true)"><i class="fas fa-phone"></i></button>
         </div>
-        <div id="outgoing-btns" class="call-actions" style="display:none;">
-            <button class="c-btn btn-red" onclick="cancelCall()"><i class="fas fa-times"></i></button>
+        <div id="out-btns" class="btn-row" style="display:none;">
+            <button class="c-btn reject" onclick="cancelCall()"><i class="fas fa-times"></i></button>
         </div>
     </div>
 
-    <div id="video-stage">
-        <video id="remote-vid" autoplay playsinline></video>
-        <video id="local-vid" autoplay muted playsinline></video>
-        <button class="hangup-float" onclick="endCallSession()"><i class="fas fa-phone-slash"></i></button>
+    <div id="vid-layer">
+        <video id="remote-v" autoplay playsinline></video>
+        <video id="local-v" autoplay muted playsinline></video>
+        <button class="end-call" onclick="terminateCall()"><i class="fas fa-phone-slash"></i></button>
     </div>
 
 <script>
-/* --- KONFİQURASİYA --- */
-const SECRET_KEY = "ISMAIL_V39_SUPER_SECRET"; // AES açarı
-const BOSS_ID = "ISMAIL-BOSS-V39-MASTER";
-let peer, conn, myStream, currentCall, pendingCallType;
-let mediaRecorder, audioChunks = [];
+// --- CORE CONFIG ---
+const KEY = "V40_ISMAIL_BOSS_SECURE";
+const BOSS_ID = "ISMAIL-V40-HOST-X99"; // Sabit BOSS ID-si
+let role, peer, conn, myStream, curCall, callType;
+let mediaRec, chunks = [];
 
-// SƏSLƏR
-const sndRing = new Audio("https://cdn.freesound.org/previews/538/538006_11674332-lq.mp3"); // Gələn zəng
-const sndDial = new Audio("https://cdn.freesound.org/previews/336/336986_5939023-lq.mp3"); // Gedən zəng (Duud duud)
-sndRing.loop = true; sndDial.loop = true;
+// Səslər
+const audRing = new Audio("https://cdn.freesound.org/previews/538/538006_11674332-lq.mp3");
+const audDial = new Audio("https://cdn.freesound.org/previews/336/336986_5939023-lq.mp3");
+audRing.loop = true; audDial.loop = true;
 
-/* --- 1. INTRO MƏNTİQİ (5 Saniyə) --- */
-const introTexts = ["SYSTEM LOADING...", "ENCRYPTING...", "ISMAIL BOSS V39", "ACCESS GRANTED"];
-let iStep = 0;
-
-window.onload = () => {
-    drawMatrix();
-    const int = setInterval(() => {
-        if(iStep < introTexts.length) {
-            document.getElementById('intro-txt').innerText = introTexts[iStep];
-            iStep++;
-        } else {
-            clearInterval(int);
-            document.getElementById('intro-layer').style.display = 'none';
-            document.getElementById('login-layer').style.display = 'flex';
-        }
-    }, 1200); // Təxminən 5 saniyə ümumi
+// STUN Serverlər (Gücləndirilmiş)
+const ICE_CONFIG = {
+    'iceServers': [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' }
+    ]
 };
 
-/* --- 2. ŞİFRƏLƏMƏ (AES + BASE64) --- */
-function encrypt(dataObj) {
-    const jsonStr = JSON.stringify(dataObj);
-    const aesEnc = CryptoJS.AES.encrypt(jsonStr, SECRET_KEY).toString();
-    return btoa(aesEnc); // Base64 çevirmə
+// --- 1. BOOT ---
+window.onload = () => {
+    drawMatrix();
+    setTimeout(() => {
+        document.getElementById('intro-screen').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'flex';
+    }, 2500);
+};
+
+function log(txt) {
+    const el = document.getElementById('status-log');
+    el.innerHTML = txt;
 }
 
-function decrypt(base64Str) {
-    try {
-        const aesStr = atob(base64Str); // Base64 geri
-        const bytes = CryptoJS.AES.decrypt(aesStr, SECRET_KEY);
-        return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-    } catch(e) { console.error("Decryption Fail"); return null; }
-}
-
-/* --- 3. BAĞLANTI (SCAN LOCK) --- */
-function startScan(role) {
-    document.getElementById('login-layer').style.display = 'none';
-    document.getElementById('scan-layer').style.display = 'flex'; // Bloklama aktiv
-
-    const myId = (role === 'BOSS') ? BOSS_ID : "GUEST-" + Math.floor(Math.random()*99999);
-    peer = new Peer(myId, { config: {'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }]} });
+// --- 2. NETWORK LOGIC (FIXED) ---
+function bootSystem(selectedRole) {
+    role = selectedRole;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('scan-screen').style.display = 'flex';
+    
+    // Qonaq üçün unikal ID, Boss üçün sabit ID
+    const myId = (role === 'BOSS') ? BOSS_ID : "GUEST-" + Math.floor(Math.random() * 999999);
+    
+    // Peer yaradılır
+    log("SERVERƏ SORĞU GÖNDƏRİLİR...");
+    peer = new Peer(myId, { config: ICE_CONFIG, debug: 1 });
 
     peer.on('open', (id) => {
-        if(role !== 'BOSS') {
-            connectToBoss(); // Qonaq avtomatik axtarır
+        log(`SERVERDƏ TƏSDİQLƏNDİ.<br>ID: ${id}<br>QARŞI TƏRƏF AXTARILIR...`);
+        if(role === 'GUEST') {
+            connectLoop(); // Qonaq dərhal axtarışa başlayır
         } else {
-            document.getElementById('scan-msg').innerText = "QONAQ GÖZLƏNİLİR...";
+            log("HOST AKTİVDİR.<br>QONAQ GÖZLƏNİLİR...");
         }
     });
 
     peer.on('connection', (c) => {
         conn = c;
-        setupConnection();
+        readyUp();
+    });
+
+    peer.on('error', (err) => {
+        log("XƏTA: " + err.type + "<br>YENİDƏN CƏHD EDİLİR...");
+        if(role === 'BOSS' && err.type === 'unavailable-id') {
+            alert("Sistemdə 'BOSS' artıq var. Digər tabları bağlayın və səhifəni yeniləyin.");
+        }
+        setTimeout(() => document.getElementById('force-btn').style.display = 'block', 2000);
     });
 }
 
-function connectToBoss() {
-    conn = peer.connect(BOSS_ID);
-    conn.on('open', () => setupConnection());
-    conn.on('error', () => { setTimeout(connectToBoss, 2000); }); // Təkrar cəhd
-}
-
-function setupConnection() {
-    // BURADA SCAN EKRANI YOX OLUR VƏ ÇAT AÇILIR
-    document.getElementById('scan-layer').style.display = 'none';
-    document.getElementById('app-core').style.display = 'flex';
+// Qonaq üçün təkrar qoşulma dövrü (THE FIX)
+function connectLoop() {
+    if(conn) return; // Artıq qoşulubsa dayan
+    log("BOSS AXTARILIR... (CƏHD EDİLİR)");
     
-    conn.on('data', (raw) => {
-        const data = decrypt(raw);
-        if(data) handleData(data);
+    const c = peer.connect(BOSS_ID, { reliable: true });
+    
+    c.on('open', () => {
+        conn = c;
+        readyUp();
     });
+
+    c.on('error', (e) => {
+        log("BOSS TAPILMADI, YENİDƏN YOXLANILIR...");
+        setTimeout(connectLoop, 2000); // 2 saniyə sonra təkrar
+    });
+
+    // Əgər 5 saniyə sonra hələ də qoşulmayıbsa, düyməni göstər
+    setTimeout(() => {
+        if(!conn) document.getElementById('force-btn').style.display = 'block';
+    }, 5000);
 }
 
-function sendData(type, content) {
+function forceRetry() {
+    location.reload(); // Ən təmiz yol səhifəni yeniləməkdir
+}
+
+function readyUp() {
+    log("UĞURLU! TƏHLÜKƏSİZ TUNEL QURULDU.");
+    document.querySelector('.radar-line').style.background = "var(--blue)";
+    
+    // Data dinləmə
+    conn.on('data', (raw) => {
+        try {
+            const dec = CryptoJS.AES.decrypt(raw, KEY).toString(CryptoJS.enc.Utf8);
+            const data = JSON.parse(dec);
+            handleData(data);
+        } catch(e) { console.log("Crypt Error"); }
+    });
+
+    setTimeout(() => {
+        document.getElementById('scan-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display = 'flex';
+    }, 1000);
+}
+
+// --- 3. COMMUNICATION ---
+function send(type, content) {
     if(conn && conn.open) {
-        conn.send(encrypt({ t: type, c: content }));
+        const enc = CryptoJS.AES.encrypt(JSON.stringify({t: type, c: content}), KEY).toString();
+        conn.send(enc);
     }
 }
 
-/* --- 4. DATA HANDLER --- */
 function handleData(d) {
-    if(d.t === 'chat') addMsg(d.c, 'them');
-    if(d.t === 'voice') addVoice(d.c, 'them');
-    if(d.t === 'call_req') showIncomingCall(d.c); // c = 'video' or 'audio'
-    if(d.t === 'call_ans') startStream(true); // Mən zəng etmişdim, o açdı
-    if(d.t === 'call_rej') resetCallUI("ZƏNG RƏDD EDİLDİ");
-    if(d.t === 'hangup') endCallSession();
+    if(d.t === 'txt') addMsg(d.c, 'them');
+    if(d.t === 'aud') addAud(d.c, 'them');
+    if(d.t === 'call_req') incCall(d.c);
+    if(d.t === 'call_ans') startCallStream(true); // O qəbul etdi, mən başlatdım
+    if(d.t === 'call_end') terminateCall(true);
 }
 
-/* --- 5. MESAJLAR VƏ SƏS --- */
+// Mesaj
 function sendTxt() {
-    const inp = document.getElementById('msg-input');
-    if(!inp.value) return;
-    addMsg(inp.value, 'me');
-    sendData('chat', inp.value);
-    inp.value = "";
+    const i = document.getElementById('msg-in');
+    if(!i.value) return;
+    addMsg(i.value, 'me');
+    send('txt', i.value);
+    i.value = "";
+}
+function addMsg(t, w) {
+    const d = document.createElement('div');
+    d.className = `bubble ${w}`;
+    d.innerText = t;
+    const f = document.getElementById('chat-feed');
+    f.appendChild(d); f.scrollTop = f.scrollHeight;
 }
 
-function addMsg(txt, who) {
-    const div = document.createElement('div');
-    div.className = `bubble ${who}`;
-    div.innerText = txt;
-    document.getElementById('chat-feed').appendChild(div);
-}
-
-// SƏS QEYDİ
-async function recStart() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
-        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-        mediaRecorder.onstop = () => {
-            const reader = new FileReader();
-            reader.readAsDataURL(new Blob(audioChunks));
-            reader.onloadend = () => {
-                addVoice(reader.result, 'me');
-                sendData('voice', reader.result);
-            };
+// Audio Rec
+function recOn() {
+    navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
+        mediaRec = new MediaRecorder(s);
+        chunks = [];
+        mediaRec.ondataavailable = e => chunks.push(e.data);
+        mediaRec.onstop = () => {
+            const r = new FileReader();
+            r.readAsDataURL(new Blob(chunks));
+            r.onload = () => { addAud(r.result, 'me'); send('aud', r.result); };
         };
-        mediaRecorder.start();
-        document.getElementById('mic-btn').style.color = 'red';
-    } catch(e) { alert("Mikrofon xətası!"); }
+        mediaRec.start();
+        document.getElementById('mic-icon').style.color = 'var(--danger)';
+    });
 }
-function recStop() {
-    if(mediaRecorder) { mediaRecorder.stop(); document.getElementById('mic-btn').style.color = 'var(--neon)'; }
-}
-function addVoice(url, who) {
-    const div = document.createElement('div');
-    div.className = `bubble ${who}`;
-    div.innerHTML = `<div onclick="new Audio('${url}').play()" style="cursor:pointer; display:flex; align-items:center; gap:10px;"><i class="fas fa-play"></i> SƏSLİ MESAJ</div>`;
-    document.getElementById('chat-feed').appendChild(div);
+function recOff() { if(mediaRec) { mediaRec.stop(); document.getElementById('mic-icon').style.color = 'var(--neon)'; } }
+function addAud(src, w) {
+    const d = document.createElement('div');
+    d.className = `bubble ${w}`;
+    d.innerHTML = `<div onclick="new Audio('${src}').play()" style="cursor:pointer; display:flex; align-items:center; gap:10px;"><i class="fas fa-play"></i> SƏSLİ MESAJ</div>`;
+    document.getElementById('chat-feed').appendChild(d);
 }
 
-/* --- 6. ZƏNG MƏNTİQİ (HƏYƏCANLI HİSSƏ) --- */
-function makeCallRequest(type) {
-    pendingCallType = type;
-    document.getElementById('call-modal').style.display = 'flex';
-    document.getElementById('call-status').innerText = "ZƏNG EDİLİR...";
-    document.getElementById('call-type').innerText = type === 'video' ? "GÖRÜNTÜLÜ" : "SƏSLİ";
-    document.getElementById('outgoing-btns').style.display = 'flex';
-    document.getElementById('incoming-btns').style.display = 'none';
-    
-    sndDial.play(); // Duud duud
-    sendData('call_req', type);
+// --- 4. CALL LOGIC ---
+function prepCall(type) {
+    callType = type;
+    document.getElementById('call-ui').style.display = 'flex';
+    document.getElementById('call-txt').innerText = "ZƏNG EDİLİR...";
+    document.getElementById('out-btns').style.display = 'flex';
+    document.getElementById('inc-btns').style.display = 'none';
+    audDial.play();
+    send('call_req', type);
 }
 
-function showIncomingCall(type) {
-    pendingCallType = type;
-    document.getElementById('call-modal').style.display = 'flex';
-    document.getElementById('call-status').innerText = "GƏLƏN ZƏNG";
-    document.getElementById('call-type').innerText = type === 'video' ? "GÖRÜNTÜLÜ" : "SƏSLİ";
-    document.getElementById('incoming-btns').style.display = 'flex';
-    document.getElementById('outgoing-btns').style.display = 'none';
-    
-    sndRing.play(); // Ring Ring
+function incCall(type) {
+    callType = type;
+    document.getElementById('call-ui').style.display = 'flex';
+    document.getElementById('call-txt').innerText = (type==='video' ? "GÖRÜNTÜLÜ" : "SƏSLİ") + " ZƏNG";
+    document.getElementById('inc-btns').style.display = 'flex';
+    document.getElementById('out-btns').style.display = 'none';
+    audRing.play();
 }
 
-function acceptCall() {
-    sndRing.pause();
-    sendData('call_ans', 'ok');
-    startStream(false); // Mən cavab verdim
-}
-
-function rejectCall() {
-    sndRing.pause();
-    document.getElementById('call-modal').style.display = 'none';
-    sendData('call_rej', 'no');
+function answerCall(yes) {
+    audRing.pause(); audRing.currentTime = 0;
+    if(yes) {
+        send('call_ans', 'ok');
+        startCallStream(false); // Mən qəbul etdim
+    } else {
+        document.getElementById('call-ui').style.display = 'none';
+        send('call_end', 'rej');
+    }
 }
 
 function cancelCall() {
-    sndDial.pause();
-    document.getElementById('call-modal').style.display = 'none';
-    sendData('call_rej', 'cancel');
+    audDial.pause(); audDial.currentTime = 0;
+    document.getElementById('call-ui').style.display = 'none';
+    send('call_end', 'cancel');
 }
 
-function resetCallUI(msg) {
-    sndDial.pause(); sndRing.pause();
-    document.getElementById('call-status').innerText = msg || "ZƏNG BİTDİ";
-    setTimeout(() => { document.getElementById('call-modal').style.display = 'none'; }, 1500);
-}
-
-/* --- 7. WEBRTC STREAM (KAMERA AÇILIR) --- */
-async function startStream(isCaller) {
-    document.getElementById('call-modal').style.display = 'none';
-    document.getElementById('video-stage').style.display = 'block';
-    sndDial.pause();
-
-    const useVideo = (pendingCallType === 'video');
+async function startCallStream(isInitiator) {
+    document.getElementById('call-ui').style.display = 'none';
+    audDial.pause();
+    document.getElementById('vid-layer').style.display = 'block';
+    
+    const useVid = (callType === 'video');
     try {
-        myStream = await navigator.mediaDevices.getUserMedia({ video: useVideo, audio: true });
-        document.getElementById('local-vid').srcObject = myStream;
+        myStream = await navigator.mediaDevices.getUserMedia({ video: useVid, audio: true });
+        document.getElementById('local-v').srcObject = myStream;
 
-        if(isCaller) {
-            currentCall = peer.call(conn.peer, myStream);
-            handleCall(currentCall);
+        if(isInitiator) {
+            curCall = peer.call(conn.peer, myStream);
+            handleStream(curCall);
         } else {
             peer.on('call', (call) => {
                 call.answer(myStream);
-                handleCall(call);
+                handleStream(call);
             });
         }
-    } catch(e) { alert("Kamera icazəsi verilmədi!"); endCallSession(); }
+    } catch(e) { alert("Kamera xətası: " + e); terminateCall(); }
 }
 
-function handleCall(call) {
-    currentCall = call;
-    call.on('stream', remoteS => {
-        document.getElementById('remote-vid').srcObject = remoteS;
-    });
-    call.on('close', endCallSession);
+function handleStream(call) {
+    curCall = call;
+    call.on('stream', rS => { document.getElementById('remote-v').srcObject = rS; });
+    call.on('close', () => terminateCall(true));
 }
 
-function endCallSession() {
-    if(currentCall) currentCall.close();
+function terminateCall(remote = false) {
+    if(!remote) send('call_end', 'bye');
+    if(curCall) curCall.close();
     if(myStream) myStream.getTracks().forEach(t => t.stop());
-    document.getElementById('video-stage').style.display = 'none';
-    sendData('hangup', 'bye');
-    resetCallUI();
+    document.getElementById('vid-layer').style.display = 'none';
+    document.getElementById('call-ui').style.display = 'none';
+    audDial.pause(); audRing.pause();
 }
 
-/* --- MATRIX EFFECT --- */
+// Matrix
 function drawMatrix() {
-    const c = document.getElementById('matrix-canvas');
+    const c = document.getElementById('matrix-bg');
     const x = c.getContext('2d');
     c.width = window.innerWidth; c.height = window.innerHeight;
-    const cols = Math.floor(c.width/20);
-    const yPos = Array(cols).fill(0);
-    
-    function run() {
-        x.fillStyle = "rgba(0,0,0,0.05)"; x.fillRect(0,0,c.width,c.height);
+    const drops = Array(Math.floor(c.width/20)).fill(1);
+    function anim() {
+        x.fillStyle = "rgba(0,0,0,0.1)"; x.fillRect(0,0,c.width,c.height);
         x.fillStyle = "#0f0"; x.font = "15px monospace";
-        yPos.forEach((y, i) => {
-            const txt = Math.random() > 0.5 ? "1" : "0";
-            x.fillText(txt, i*20, y);
-            if(y > c.height && Math.random() > 0.98) yPos[i] = 0;
-            else yPos[i] += 20;
+        drops.forEach((y, i) => {
+            x.fillText(Math.random()>0.5?"1":"0", i*20, y*20);
+            if(y*20 > c.height && Math.random()>0.975) drops[i]=0;
+            drops[i]++;
         });
-        requestAnimationFrame(run);
+        requestAnimationFrame(anim);
     }
-    run();
+    anim();
 }
 </script>
 </body>
 </html>
+
 
 
 
