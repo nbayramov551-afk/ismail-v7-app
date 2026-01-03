@@ -3,325 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>OMEGA ULTRA V16 - BOSS EDITION</title>
+    <title>OMEGA BOSS V18 | CRYSTAL FORTRESS</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --neon-green: #00ff41;
-            --boss-dark: #050505;
-            --panel-bg: rgba(20, 20, 20, 0.95);
-            --wa-green: #25d366;
-            --hdr-gold: #ffcc00;
+            --crystal-neon: #00f2ff;
+            --deep-space: #020205;
+            --boss-gold: #d4af37;
+            --security-red: #ff003c;
+            --glass: rgba(255, 255, 255, 0.03);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--boss-dark); color: #fff; height: 100vh; overflow: hidden; position: fixed; width: 100%; }
-
-        /* SİBER ŞİFRƏLƏMƏ GİRİŞİ */
-        #auth-gate { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .cyber-box { border: 2px solid var(--neon-green); padding: 40px; border-radius: 5px; background: rgba(0,255,65,0.05); text-align: center; box-shadow: 0 0 30px var(--neon-green); }
-        .boss-input { background: #000; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 15px; width: 280px; margin: 20px 0; font-family: 'Orbitron'; font-size: 18px; outline: none; text-align: center; }
-
-        /* ƏSAS İNTERFEYS (WHATSAPP STYLE) */
-        .app-container { display: none; height: 100vh; flex-direction: column; }
-        header { background: #111; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .tabs { display: flex; background: #111; }
-        .tab { flex: 1; padding: 15px; text-align: center; color: #888; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 13px; }
-        .tab.active { color: var(--wa-green); border-bottom: 3px solid var(--wa-green); }
-
-        /* SİYAHILAR */
-        .scroll-list { flex: 1; overflow-y: auto; background: #000; }
-        .user-row { display: flex; align-items: center; padding: 15px; border-bottom: 0.1px solid #222; cursor: pointer; transition: 0.2s; }
-        .user-row:hover { background: #111; }
-        .avatar { width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(45deg, #222, #444); margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; border: 2px solid var(--wa-green); }
-
-        /* ULTRA HDR CHAT */
-        #chat-window { position: fixed; inset: 0; background: #080808; z-index: 5000; transform: translateY(100%); transition: 0.4s cubic-bezier(0.1, 0.7, 1, 0.1); display: flex; flex-direction: column; }
-        #chat-window.active { transform: translateY(0); }
-        .chat-header { background: #111; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
-        .msg-area { flex: 1; overflow-y: auto; padding: 20px; background: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); display: flex; flex-direction: column; gap: 10px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; cursor: crosshair; }
         
-        .bubble { max-width: 75%; padding: 12px 16px; border-radius: 18px; font-size: 15px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-        .me { align-self: flex-end; background: #005c4b; border-bottom-right-radius: 2px; }
-        .them { align-self: flex-start; background: #202c33; border-bottom-left-radius: 2px; }
-
-        /* HDR VİDEO CALL PƏNCƏRƏSİ */
-        #call-overlay { position: fixed; inset: 0; background: #000; z-index: 10000; display: none; flex-direction: column; }
-        .v-full { width: 100%; height: 100%; object-fit: cover; filter: contrast(1.1) brightness(1.1); }
-        .v-mini { position: absolute; top: 30px; right: 20px; width: 120px; height: 180px; border-radius: 15px; border: 2px solid var(--neon-green); box-shadow: 0 0 15px var(--neon-green); object-fit: cover; z-index: 10001; }
+        /* KRİSTAL PARILDAYAN ARXA FON */
+        body { 
+            background: radial-gradient(circle at center, #0a0a20 0%, #000 100%);
+            color: #fff; height: 100vh; overflow: hidden; position: fixed; width: 100%;
+        }
         
-        .call-controls { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 25px; z-index: 10002; }
-        .c-btn { width: 70px; height: 70px; border-radius: 50%; border: none; font-size: 24px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(10px); }
-        .hangup { background: #ff3b30; }
-        .accept { background: #4cd964; animation: pulse 1.5s infinite; }
-        .mute-btn { background: rgba(255,255,255,0.2); }
+        body::before {
+            content: ""; position: absolute; inset: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.4; pointer-events: none; animation: drift 60s linear infinite;
+        }
 
-        /* MESAJ SAHƏSİ */
-        .input-box { background: #111; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
-        .input-main { flex: 1; background: #2a3942; border: none; padding: 12px 20px; border-radius: 30px; color: #fff; outline: none; font-size: 16px; }
+        /* REKLAM & GİRİŞ - CRYSTAL UI */
+        #gate-screen { 
+            position: fixed; inset: 0; background: var(--deep-space); z-index: 100000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
 
-        @keyframes pulse { 0% {box-shadow: 0 0 0 0 rgba(76,217,100,0.7);} 70% {box-shadow: 0 0 0 20px rgba(76,217,100,0);} 100% {box-shadow: 0 0 0 0 rgba(76,217,100,0);} }
+        .ad-container { text-align: center; animation: zoomIn 1.5s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
+        .ad-main { font-family: 'Orbitron'; font-size: 35px; background: linear-gradient(to right, #fff, var(--crystal-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px var(--crystal-neon)); }
+        
+        .btn-launch {
+            margin-top: 50px; padding: 20px 80px; font-family: 'Orbitron'; font-weight: 900;
+            background: transparent; border: 2px solid var(--crystal-neon); color: var(--crystal-neon);
+            text-transform: uppercase; letter-spacing: 5px; cursor: pointer;
+            box-shadow: inset 0 0 20px var(--crystal-neon), 0 0 20px var(--crystal-neon);
+            clip-path: polygon(0% 20%, 20% 0%, 100% 0%, 100% 80%, 80% 100%, 0% 100%);
+            transition: 0.5s;
+        }
+
+        .btn-launch:hover { background: var(--crystal-neon); color: #000; box-shadow: 0 0 50px var(--crystal-neon); }
+
+        /* ROL SEÇİMİ - LUXURY STYLE */
+        #role-box { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 90000; 
+            display: none; align-items: center; justify-content: center; gap: 40px;
+        }
+
+        .card {
+            width: 280px; height: 400px; background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px); display: flex; flex-direction: column; align-items: center;
+            justify-content: center; transition: 0.5s; position: relative; overflow: hidden;
+        }
+
+        .card::after { content: "SECURE"; position: absolute; top: 10px; right: -30px; background: var(--boss-gold); color: #000; padding: 5px 40px; transform: rotate(45deg); font-size: 10px; font-weight: 900; }
+        .card:hover { border-color: var(--crystal-neon); transform: translateY(-10px); background: rgba(0,242,255,0.05); }
+        .card i { font-size: 60px; color: var(--crystal-neon); margin-bottom: 20px; filter: drop-shadow(0 0 10px var(--crystal-neon)); }
+
+        /* LOADING & CONNECTING */
+        #loader-screen { position: fixed; inset: 0; background: #000; z-index: 80000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .scanner { width: 300px; height: 2px; background: #111; position: relative; overflow: hidden; }
+        .scanner::after { content: ""; position: absolute; width: 100px; height: 100%; background: var(--crystal-neon); box-shadow: 0 0 15px var(--crystal-neon); animation: scan 2s infinite; }
+
+        /* CHAT INTERFACE - RICH STYLE */
+        #app-core { display: none; height: 100vh; flex-direction: column; }
+        .header { background: rgba(10,10,10,0.8); backdrop-filter: blur(20px); padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        .chat-room { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 15px; background: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; }
+        
+        .msg { max-width: 70%; padding: 15px; border-radius: 20px; position: relative; font-size: 17px; backdrop-filter: blur(5px); }
+        .sent { align-self: flex-end; background: linear-gradient(135deg, #004e52, #002a2c); border: 1px solid var(--crystal-neon); border-bottom-right-radius: 2px; }
+        .rcvd { align-self: flex-start; background: rgba(40,40,40,0.8); border: 1px solid rgba(255,255,255,0.1); border-bottom-left-radius: 2px; }
+
+        /* VIDEO CALL - FULLSCREEN HDR */
+        #call-layer { position: fixed; inset: 0; background: #000; z-index: 200000; display: none; }
+        .v-remote { width: 100%; height: 100%; object-fit: cover; }
+        .v-local { position: absolute; top: 30px; right: 20px; width: 130px; height: 190px; border-radius: 15px; border: 2px solid var(--crystal-neon); object-fit: cover; box-shadow: 0 0 20px rgba(0,242,255,0.5); }
+
+        .control-bar { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); display: flex; gap: 25px; }
+        .c-btn { width: 75px; height: 75px; border-radius: 50%; border: none; font-size: 28px; color: #fff; cursor: pointer; backdrop-filter: blur(10px); transition: 0.3s; }
+        .btn-end { background: var(--security-red); box-shadow: 0 0 20px var(--security-red); }
+        .btn-ans { background: #25d366; animation: pulse 1.5s infinite; }
+
+        /* INPUT AREA */
+        .bottom-bar { padding: 15px; background: #0a0a0a; display: flex; align-items: center; gap: 15px; border-top: 1px solid #222; }
+        .input-box { flex: 1; background: #151515; border: 1px solid #333; padding: 15px; border-radius: 10px; color: #fff; outline: none; font-size: 16px; }
+
+        @keyframes drift { from {background-position: 0 0;} to {background-position: 1000px 1000px;} }
+        @keyframes scan { from {left: -100px;} to {left: 300px;} }
+        @keyframes pulse { 0% {box-shadow: 0 0 0 0 rgba(37,211,102,0.8);} 70% {box-shadow: 0 0 0 20px rgba(37,211,102,0);} 100% {box-shadow: 0 0 0 0 rgba(37,211,102,0);} }
     </style>
 </head>
 <body>
 
-    <audio id="ringtone" src="https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3" loop></audio>
+    <div id="gate-screen">
+        <div class="ad-container">
+            <h1 class="ad-main">OMEGA BOSS V18</h1>
+            <p style="color: var(--boss-gold); letter-spacing: 8px; margin-top: 10px;">CRYSTAL FORTRESS SYSTEM</p>
+            <div style="margin-top: 30px; font-size: 14px; color: #555;">ENCRYPTED BY OMEGA QUANTUM ENGINE</div>
+        </div>
+        <button class="btn-launch" onclick="initiateAccess()">ACCESS SYSTEM</button>
+    </div>
 
-    <div id="auth-gate">
-        <div class="cyber-box">
-            <h1 style="font-family:'Orbitron'; color:var(--neon-green); letter-spacing:5px;">OMEGA V16</h1>
-            <p style="font-size:12px; margin-top:10px; color:#888;">MILITARY GRADE ENCRYPTION ACTIVE</p>
-            <input type="text" id="boss-alias" class="boss-input" placeholder="ACCESS NAME...">
-            <button onclick="unlock()" style="background:var(--neon-green); color:#000; border:none; padding:15px 40px; font-weight:900; font-family:'Orbitron'; cursor:pointer; width:100%;">GİRİŞİ TƏSDİQLƏ</button>
+    <div id="role-box">
+        <div class="card" onclick="setIdentity('BOSS')">
+            <i class="fas fa-crown"></i>
+            <h2 style="font-family:'Orbitron'">BOSS</h2>
+            <p style="padding: 20px; color: #888;">Full Admin Access. Waiting for secure handshake.</p>
+        </div>
+        <div class="card" onclick="setIdentity('DOST')">
+            <i class="fas fa-key"></i>
+            <h2 style="font-family:'Orbitron'">GUEST</h2>
+            <p style="padding: 20px; color: #888;">Encrypted entry. Searching for Boss Station.</p>
         </div>
     </div>
 
-    <div class="app-container" id="app">
-        <header>
-            <h2 style="color:var(--wa-green); font-family:'Orbitron';">WhatsApp <span style="font-size:10px; color:var(--hdr-gold);">ULTRA HDR</span></h2>
-            <div style="display:flex; gap:20px; font-size:20px; color:#888;">
-                <i class="fas fa-search"></i>
-                <i class="fas fa-user-plus" onclick="addContact()"></i>
-                <i class="fas fa-ellipsis-v"></i>
-            </div>
-        </header>
-        
-        <div class="tabs">
-            <div class="tab active" onclick="tab('chats')">Çatlar</div>
-            <div class="tab" onclick="tab('status')">Status</div>
-            <div class="tab" onclick="tab('calls')">Zənglər</div>
-        </div>
-
-        <div id="chats" class="scroll-list"></div>
+    <div id="loader-screen">
+        <i class="fas fa-shield-alt" style="font-size: 50px; color: var(--crystal-neon); margin-bottom: 20px;"></i>
+        <h3 id="load-status" style="font-family:'Orbitron';">SECURING TUNNELS...</h3>
+        <div class="scanner" style="margin-top: 20px;"></div>
     </div>
 
-    <div id="chat-window">
-        <div class="chat-header">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <i class="fas fa-arrow-left" onclick="closeChat()"></i>
-                <div class="avatar" style="width:40px; height:40px; font-size:14px;" id="c-av">?</div>
-                <div>
-                    <b id="c-name">Dost</b><br>
-                    <small style="color:var(--wa-green);">HDR Line Active</small>
-                </div>
+    <div id="app-core">
+        <div class="header">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div style="width:12px; height:12px; background:var(--crystal-neon); border-radius:50%; box-shadow:0 0 10px var(--crystal-neon);"></div>
+                <b style="font-family:'Orbitron'; color:var(--crystal-neon); font-size:20px;">SECURE CORE</b>
             </div>
-            <div style="display:flex; gap:22px; font-size:20px; color:var(--wa-green);">
-                <i class="fas fa-video" onclick="initCall(true)"></i>
-                <i class="fas fa-phone" onclick="initCall(false)"></i>
+            <div style="display:flex; gap:25px; color:#888;">
+                <i class="fas fa-video" onclick="startCall(true)" style="cursor:pointer; color:var(--crystal-neon);"></i>
+                <i class="fas fa-phone-alt" onclick="startCall(false)" style="cursor:pointer;"></i>
+                <i class="fas fa-cog"></i>
             </div>
         </div>
-        <div class="msg-area" id="feed"></div>
-        <div class="input-box">
-            <i class="far fa-smile" style="font-size:24px; color:#888;"></i>
-            <input type="text" id="m-in" class="input-main" placeholder="Təhlükəsiz mesaj...">
-            <i class="fas fa-microphone" id="mic" style="font-size:22px; color:#888;" onmousedown="startRec()" onmouseup="stopRec()"></i>
-            <button onclick="sendMsg()" style="background:none; border:none; color:var(--wa-green); font-size:24px;"><i class="fas fa-paper-plane"></i></button>
+        <div class="chat-room" id="chat-feed"></div>
+        <div class="bottom-bar">
+            <i class="fas fa-plus" style="color:#555;"></i>
+            <input type="text" id="msg-input" class="input-box" placeholder="Write encrypted message...">
+            <i class="fas fa-microphone" id="voice-btn" style="color:var(--crystal-neon); font-size:20px;" onmousedown="vRecStart()" onmouseup="vRecStop()"></i>
+            <button onclick="send()" style="background:none; border:none; color:var(--crystal-neon); font-size:24px;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
-    <div id="call-overlay">
-        <video id="remote-v" class="v-full" autoplay playsinline></video>
-        <video id="local-v" class="v-mini" autoplay muted playsinline></video>
-        <div style="position:absolute; top:100px; width:100%; text-align:center;">
-            <h2 id="call-user">XƏTTDƏ...</h2>
-            <div id="hdr-tag" style="display:inline-block; background:var(--hdr-gold); color:#000; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:900; margin-top:10px;">ULTRA HDR 4K</div>
-        </div>
-        <div class="call-controls">
-            <button class="c-btn mute-btn" id="toggle-mic" onclick="toggleAudio()"><i class="fas fa-microphone"></i></button>
-            <button class="c-btn mute-btn" id="toggle-vid" onclick="toggleVideo()"><i class="fas fa-video"></i></button>
-            <button id="ans-btn" class="c-btn accept" style="display:none;" onclick="answerCall()"><i class="fas fa-phone"></i></button>
-            <button class="c-btn hangup" onclick="location.reload()"><i class="fas fa-phone-slash"></i></button>
+    <div id="call-layer">
+        <video id="v-remote" class="v-remote" autoplay playsinline></video>
+        <video id="v-local" class="v-local" autoplay muted playsinline></video>
+        <div class="control-bar">
+            <button class="c-btn btn-end" onclick="location.reload()"><i class="fas fa-phone-slash"></i></button>
+            <button id="ans-btn" class="c-btn btn-ans" style="display:none;" onclick="answer()"><i class="fas fa-phone"></i></button>
         </div>
     </div>
 
     <script>
-        let me, peer, activeChat, localStream, currentCall, recorder, chunks = [];
-        const MASTER_SHIFRE = "ULTRA_MOSCOW_BOSS_256_BIT_AES_KEY_!!!";
+        let peer, conn, myId, myStream, currentCall, recorder, chunks = [];
+        const STATION_ID = "STATION-BOSS-OMEGA-99"; // Sabit və gizli Boss ID-si
+        const CRYPTO_KEY = "32-BYTE-ULTRA-SECURE-KEY-FOR-BOSS-ISMAIL";
 
-        // GİRİŞ VƏ SİSTEMİN BAŞLATILMASI
-        function unlock() {
-            const n = document.getElementById('boss-alias').value;
-            if(!n) return;
-            me = { id: "BOSS-" + Math.floor(1000 + Math.random() * 9000), name: n };
-            localStorage.setItem('omega_boss', JSON.stringify(me));
-            document.getElementById('auth-gate').style.display = 'none';
-            document.getElementById('app').style.display = 'flex';
-            initPeer();
+        // GİRİŞ İCAZƏLƏRİ VƏ ANİMASİYA
+        async function initiateAccess() {
+            try {
+                // Bütün icazələri öncədən istəyirik (GitHub & APK üçün vacib)
+                await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+                document.getElementById('gate-screen').style.display = 'none';
+                document.getElementById('role-box').style.display = 'flex';
+            } catch (e) {
+                alert("Sistemə daxil olmaq üçün Kamera və Mikrofon icazəsi mütləqdir!");
+            }
         }
 
-        function initPeer() {
-            peer = new Peer(me.id, {
+        function setIdentity(role) {
+            document.getElementById('role-box').style.display = 'none';
+            document.getElementById('loader-screen').style.display = 'flex';
+            
+            myId = (role === 'BOSS') ? STATION_ID : "GUEST-" + Math.floor(Math.random()*9999);
+            
+            peer = new Peer(myId, {
                 config: {'iceServers': [
                     { urls: 'stun:stun.l.google.com:19302' },
                     { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun.services.mozilla.com' }
+                    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
                 ]}
             });
 
-            peer.on('connection', c => c.on('data', d => processData(d)));
+            peer.on('open', () => {
+                if(role === 'BOSS') {
+                    document.getElementById('load-status').innerText = "WAITING FOR GUEST HANDSHAKE...";
+                } else {
+                    document.getElementById('load-status').innerText = "PENETRATING BOSS STATION...";
+                    connectAuto();
+                }
+            });
+
+            peer.on('connection', c => {
+                conn = c;
+                launchApp();
+            });
+
             peer.on('call', c => {
                 currentCall = c;
-                document.getElementById('call-overlay').style.display = 'flex';
-                document.getElementById('ans-btn').style.display = 'flex';
-                document.getElementById('ringtone').play();
-            });
-            renderList();
-        }
-
-        // KONTAKTLAR
-        function addContact() {
-            const id = prompt("Dostun OMEGA ID-sini yaz (Məsələn: BOSS-1234):");
-            if(!id) return;
-            let db = JSON.parse(localStorage.getItem('omega_db') || "[]");
-            if(!db.find(x => x.id === id)) db.push({id, msgs: []});
-            localStorage.setItem('omega_db', JSON.stringify(db));
-            renderList();
-        }
-
-        function renderList() {
-            const l = document.getElementById('chats'); l.innerHTML = "";
-            const db = JSON.parse(localStorage.getItem('omega_db') || "[]");
-            db.forEach(u => {
-                l.innerHTML += `
-                    <div class="user-row" onclick="openChat('${u.id}')">
-                        <div class="avatar">${u.id[5]}</div>
-                        <div style="flex:1">
-                            <b style="font-size:17px;">${u.id}</b><br>
-                            <small style="color:#888;">🔒 AES-256 Şifrələnmiş Tunel</small>
-                        </div>
-                    </div>`;
+                document.getElementById('call-layer').style.display = 'block';
+                document.getElementById('ans-btn').style.display = 'block';
             });
         }
 
-        // MESAJLAŞMA (SUPER ENCRYPTION)
-        function openChat(id) {
-            activeChat = id; document.getElementById('c-name').innerText = id;
-            document.getElementById('c-av').innerText = id[5];
-            document.getElementById('chat-window').classList.add('active');
-            renderMsgs();
+        function connectAuto() {
+            const timer = setInterval(() => {
+                let c = peer.connect(STATION_ID);
+                c.on('open', () => {
+                    conn = c;
+                    launchApp();
+                    clearInterval(timer);
+                });
+            }, 2500);
         }
 
-        function sendMsg() {
-            const txt = document.getElementById('m-in').value; if(!txt) return;
-            const msgObj = { f: me.id, type: 'text', body: txt, ts: Date.now() };
-            encryptAndTransmit(msgObj);
-            document.getElementById('m-in').value = "";
-        }
-
-        function encryptAndTransmit(obj) {
-            let db = JSON.parse(localStorage.getItem('omega_db'));
-            db.find(x => x.id === activeChat).msgs.push(obj);
-            localStorage.setItem('omega_db', JSON.stringify(db));
+        function launchApp() {
+            document.getElementById('loader-screen').style.display = 'none';
+            document.getElementById('app-core').style.display = 'flex';
             
-            const conn = peer.connect(activeChat);
-            conn.on('open', () => {
-                const cipher = CryptoJS.AES.encrypt(JSON.stringify(obj), MASTER_SHIFRE).toString();
-                conn.send(cipher);
-                renderMsgs();
+            conn.on('data', data => {
+                const dec = CryptoJS.AES.decrypt(data, CRYPTO_KEY).toString(CryptoJS.enc.Utf8);
+                show(JSON.parse(dec), 'rcvd');
             });
         }
 
-        function processData(cipher) {
-            const dec = CryptoJS.AES.decrypt(cipher, MASTER_SHIFRE).toString(CryptoJS.enc.Utf8);
-            const data = JSON.parse(dec);
-            let db = JSON.parse(localStorage.getItem('omega_db') || "[]");
-            let user = db.find(x => x.id === data.f);
-            if(user) {
-                user.msgs.push(data);
-                localStorage.setItem('omega_db', JSON.stringify(db));
-                if(activeChat === data.f) renderMsgs();
+        function send() {
+            const t = document.getElementById('msg-input').value; if(!t) return;
+            const obj = { type: 'txt', body: t };
+            const enc = CryptoJS.AES.encrypt(JSON.stringify(obj), CRYPTO_KEY).toString();
+            conn.send(enc);
+            show(obj, 'sent');
+            document.getElementById('msg-input').value = "";
+        }
+
+        function show(obj, side) {
+            const f = document.getElementById('chat-feed');
+            const b = document.createElement('div');
+            b.className = `msg ${side}`;
+            if(obj.type === 'txt') b.innerText = obj.body;
+            else {
+                b.innerHTML = `<i class="fas fa-play"></i> AUDIO_STREAM_HD.mp3`;
+                b.onclick = () => new Audio(obj.body).play();
             }
+            f.appendChild(b);
+            f.scrollTop = f.scrollHeight;
         }
 
-        function renderMsgs() {
-            const feed = document.getElementById('feed'); feed.innerHTML = "";
-            const db = JSON.parse(localStorage.getItem('omega_db'));
-            const chat = db.find(x => x.id === activeChat);
-            chat.msgs.forEach(m => {
-                const side = m.f === me.id ? 'me' : 'them';
-                if(m.type === 'text') feed.innerHTML += `<div class="bubble ${side}">${m.body}</div>`;
-                else feed.innerHTML += `<div class="bubble ${side}" onclick="new Audio('${m.body}').play()"><i class="fas fa-play"></i> SƏSLİ MESAJ</div>`;
+        // ULTRA HDR CALL ENGINE
+        async function startCall(v) {
+            document.getElementById('call-layer').style.display = 'block';
+            myStream = await navigator.mediaDevices.getUserMedia({
+                video: v ? { facingMode: "user", width: { ideal: 1920 }, height: { ideal: 1080 } } : false,
+                audio: { echoCancellation: true, noiseSuppression: true }
             });
-            feed.scrollTop = feed.scrollHeight;
+            document.getElementById('v-local').srcObject = myStream;
+            currentCall = peer.call(conn.peer, myStream);
+            currentCall.on('stream', s => document.getElementById('v-remote').srcObject = s);
         }
 
-        // ULTRA HDR VİDEO CALL ENGINE (Yandex Optimized)
-        async function initCall(video) {
-            document.getElementById('call-overlay').style.display = 'flex';
-            // Yandex brauzer üçün HDR səs və görüntü parametrləri
-            localStream = await navigator.mediaDevices.getUserMedia({
-                video: video ? { width: 1280, height: 720, frameRate: 30 } : false,
-                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
-            });
-            document.getElementById('local-v').srcObject = localStream;
-            currentCall = peer.call(activeChat, localStream);
-            handleCallStream();
-        }
-
-        async function answerCall() {
-            document.getElementById('ringtone').pause();
+        async function answer() {
             document.getElementById('ans-btn').style.display = 'none';
-            localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-            document.getElementById('local-v').srcObject = localStream;
-            currentCall.answer(localStream);
-            handleCallStream();
+            myStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+            document.getElementById('v-local').srcObject = myStream;
+            currentCall.answer(myStream);
+            currentCall.on('stream', s => document.getElementById('v-remote').srcObject = s);
         }
 
-        function handleCallStream() {
-            currentCall.on('stream', st => {
-                document.getElementById('remote-v').srcObject = st;
-                document.getElementById('call-user').innerText = "BAĞLANTI TƏHLÜKƏSİZ";
-            });
-        }
-
-        // ƏYLƏNCƏLİ FUNKSİYALAR (SƏS/GÖRÜNTÜ İDARƏSİ)
-        function toggleAudio() {
-            const audioTrack = localStream.getAudioTracks()[0];
-            audioTrack.enabled = !audioTrack.enabled;
-            document.getElementById('toggle-mic').style.background = audioTrack.enabled ? "" : "red";
-        }
-
-        function toggleVideo() {
-            const videoTrack = localStream.getVideoTracks()[0];
-            videoTrack.enabled = !videoTrack.enabled;
-            document.getElementById('toggle-vid').style.background = videoTrack.enabled ? "" : "red";
-        }
-
-        // SUPER SƏSLİ MESAJ
-        function startRec() {
-            navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
+        // HD VOICE MESSAGING
+        function vRecStart() {
+            navigator.mediaDevices.getUserMedia({audio: true}).then(s => {
                 recorder = new MediaRecorder(s);
                 recorder.ondataavailable = e => chunks.push(e.data);
                 recorder.onstop = () => {
-                    const reader = new FileReader();
-                    reader.onload = () => encryptAndTransmit({f: me.id, type:'audio', body: reader.result});
-                    reader.readAsDataURL(new Blob(chunks)); chunks = [];
+                    const r = new FileReader();
+                    r.onload = () => {
+                        const obj = { type: 'aud', body: r.result };
+                        conn.send(CryptoJS.AES.encrypt(JSON.stringify(obj), CRYPTO_KEY).toString());
+                        show(obj, 'sent');
+                    };
+                    r.readAsDataURL(new Blob(chunks)); chunks = [];
                 };
                 recorder.start();
-                document.getElementById('mic').style.color = 'red';
+                document.getElementById('voice-btn').style.color = 'red';
             });
         }
-        function stopRec() { if(recorder) { recorder.stop(); document.getElementById('mic').style.color = '#888'; } }
-
-        function closeChat() { document.getElementById('chat-window').classList.remove('active'); }
-        function tab(t) { console.log(t + " moduna keçid"); }
-
-        // AVTO-GİRİŞ
-        window.onload = () => {
-            const saved = localStorage.getItem('omega_boss');
-            if(saved) {
-                me = JSON.parse(saved);
-                document.getElementById('auth-gate').style.display = 'none';
-                document.getElementById('app').style.display = 'flex';
-                initPeer();
-            }
-        };
+        function vRecStop() { if(recorder) { recorder.stop(); document.getElementById('voice-btn').style.color = var(--crystal-neon); } }
     </script>
 </body>
 </html>
+
