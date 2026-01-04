@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ISMAIL BOSS | V45 ULTRA</title>
+    <title>PHANTOM V48 | ISMAIL BOSS</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
@@ -13,254 +13,251 @@
     
     <style>
         :root { --neon: #00ff41; --danger: #ff003c; --blue: #00f2ff; --bg: #000; --gold: #ffd700; }
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; outline: none; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; outline: none; }
         body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; font-family: 'Orbitron', sans-serif; }
 
-        #matrix-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.15; }
+        #matrix-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.12; }
 
-        /* INTRO */
-        #intro-screen { position: fixed; inset: 0; z-index: 5000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .glitch { font-size: 3rem; color: var(--neon); text-shadow: 0 0 10px var(--neon); animation: pulse 1.5s infinite; }
+        /* REKLAM ANİMASİYALARI */
+        .ad-layer { position: fixed; inset: 0; z-index: 9000; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .ad-content { font-size: 2.5rem; color: var(--neon); text-shadow: 0 0 20px var(--neon); text-align: center; font-weight: 900; transform: translateX(-150%); transition: transform 0.8s ease-in-out; }
+        .ad-content.show { transform: translateX(0); }
+        .ad-content.slide-out { transform: translateX(150%); }
 
-        /* LOGIN */
-        #login-screen { position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-        .btn-main { width: 280px; padding: 20px; border: 2px solid var(--neon); background: transparent; color: var(--neon); font-size: 1.1rem; font-weight: 900; cursor: pointer; border-radius: 5px; box-shadow: 0 0 10px var(--neon); }
+        /* LOGIN & SCAN */
+        #login-screen { position: fixed; inset: 0; z-index: 5000; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .role-btn { width: 280px; padding: 25px; margin: 15px; border: 3px solid var(--neon); background: transparent; color: var(--neon); font-size: 1.3rem; font-weight: 900; cursor: pointer; position: relative; overflow: hidden; transition: 0.3s; }
+        .role-btn:hover { background: var(--neon); color: #000; box-shadow: 0 0 40px var(--neon); }
 
-        /* RADAR SCAN */
-        #scan-screen { position: fixed; inset: 0; z-index: 3000; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .radar-box { width: 250px; height: 250px; border: 1px solid var(--neon); border-radius: 50%; position: relative; overflow: hidden; }
-        .radar-line { position: absolute; width: 100%; height: 100%; background: conic-gradient(from 0deg, transparent, var(--neon)); animation: rotate 2s linear infinite; opacity: 0.4; border-radius: 50%; }
-        .scan-txt { margin-top: 20px; font-family: 'Share Tech Mono'; color: var(--neon); text-align: center; }
+        #scan-screen { position: fixed; inset: 0; z-index: 4000; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .radar { width: 280px; height: 280px; border: 4px solid var(--neon); border-radius: 50%; position: relative; box-shadow: 0 0 30px rgba(0,255,65,0.3); }
+        .radar::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(transparent, var(--neon)); animation: rotate 1.2s linear infinite; opacity: 0.6; }
 
-        /* CHAT APP */
-        #app-screen { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; }
-        .top-bar { padding: 15px; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; background: #000; box-shadow: 0 5px 15px rgba(0,255,65,0.2); }
-        .feed { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { padding: 12px; border-radius: 10px; max-width: 75%; font-family: 'Share Tech Mono'; line-height: 1.4; font-size: 14px; }
-        .me { align-self: flex-end; background: #004d40; border-right: 3px solid var(--blue); }
-        .them { align-self: flex-start; background: #212121; border-left: 3px solid var(--neon); }
+        /* APP MAIN */
+        #app-screen { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; background: #000; }
+        .top-bar { padding: 20px; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.9); }
+        .feed { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .bubble { padding: 15px; border-radius: 10px; max-width: 80%; font-family: 'Share Tech Mono'; font-size: 14px; border: 1px solid rgba(0,255,65,0.1); word-break: break-all; }
+        .me { align-self: flex-end; background: #004d40; border-right: 4px solid var(--blue); }
+        .them { align-self: flex-start; background: #1a1a1a; border-left: 4px solid var(--neon); }
 
-        .bot-bar { padding: 15px; background: #000; border-top: 1px solid var(--neon); display: flex; flex-direction: column; gap: 10px; }
-        .emoji-list { display: flex; justify-content: space-around; font-size: 22px; }
-        .input-row { display: flex; gap: 10px; width: 100%; }
-        .msg-box { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 5px; }
-
-        /* MEDIA LAYER */
+        /* MEDIA UI */
         #media-layer { position: fixed; inset: 0; z-index: 6000; background: #000; display: none; }
         #remote-v { width: 100%; height: 100%; object-fit: cover; }
-        #local-v { position: absolute; top: 20px; right: 20px; width: 110px; height: 160px; border: 2px solid var(--blue); border-radius: 10px; object-fit: cover; }
-        #audio-only-ui { position: fixed; inset: 0; background: radial-gradient(circle, #002200, #000); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 6100; }
-        .end-btn { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); width: 75px; height: 75px; background: var(--danger); border-radius: 50%; border: none; color: #fff; font-size: 30px; box-shadow: 0 0 20px var(--danger); }
+        #local-v { position: absolute; top: 20px; right: 20px; width: 110px; height: 160px; border: 2px solid var(--blue); border-radius: 10px; z-index: 6001; }
+        .end-call { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); width: 80px; height: 80px; background: var(--danger); border-radius: 50%; border: none; color: #fff; font-size: 30px; cursor: pointer; box-shadow: 0 0 20px var(--danger); }
+
+        .boss-footer { padding: 10px; text-align: center; background: #000; border-top: 1px solid #222; font-family: 'Share Tech Mono'; color: var(--gold); letter-spacing: 5px; font-weight: 900; }
 
         @keyframes rotate { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1.02); } }
     </style>
 </head>
 <body>
 
     <canvas id="matrix-bg"></canvas>
 
-    <div id="intro-screen">
-        <h1 class="glitch">V45 ULTRA</h1>
-        <p style="color:var(--blue); letter-spacing: 3px;">BY ISMAIL BOSS</p>
+    <div id="ad1" class="ad-layer">
+        <div class="ad-content" id="ad1-text">
+            <i class="fas fa-shield-alt fa-2x"></i><br>
+            GÜVƏNLİ BAĞLANTI<br>
+            <span style="font-size: 1rem; color: var(--blue);">PHANTOM V48 ULTRA ŞİFRƏLƏMƏ</span>
+        </div>
+    </div>
+
+    <div id="ad2" class="ad-layer" style="display:none;">
+        <div class="ad-content" id="ad2-text">
+            <i class="fas fa-comment-dots fa-2x"></i><br>
+            XOŞ ÜNSİYYƏTLƏR<br>
+            <span style="font-size: 1rem; color: var(--gold);">ISMAIL BOSS SİSTEMİ</span>
+        </div>
     </div>
 
     <div id="login-screen">
-        <button class="btn-main" onclick="startSystem('BOSS')">BOSS MODE (HOST)</button>
-        <button class="btn-main" onclick="startSystem('GUEST')" style="color:var(--blue); border-color:var(--blue); box-shadow: 0 0 10px var(--blue);">GUEST MODE (JOIN)</button>
+        <h1 style="color:var(--neon); margin-bottom:30px; letter-spacing:10px;">V48 STEALTH</h1>
+        <button class="role-btn" onclick="initSystem('BOSS')">BOSS MODE</button>
+        <button class="role-btn" onclick="initSystem('GUEST')" style="border-color:var(--blue); color:var(--blue)">GUEST MODE</button>
     </div>
 
     <div id="scan-screen">
-        <div class="radar-box">
-            <div class="radar-line"></div>
-            <i class="fas fa-shield-halved fa-4x" style="color:var(--neon); position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.3;"></i>
-        </div>
-        <div class="scan-txt" id="scan-info">SİSTEM GÜVƏNİLİR...<br>BAĞLANTI AXTARILIR</div>
+        <div class="radar"></div>
+        <div style="margin-top:30px; color:var(--neon); font-family:'Share Tech Mono';" id="scan-status">KANAL ANALİZ EDİLİR...</div>
     </div>
 
     <div id="app-screen">
         <div class="top-bar">
-            <div><b id="user-tag" style="color:var(--neon)">V45 BEAST</b><br><small id="conn-stat" style="color:var(--gold); font-size:10px;">SCANNING...</small></div>
-            <div style="display:flex; gap:20px;">
-                <i class="fas fa-video fa-lg" style="color:var(--blue)" onclick="callPeer('video')"></i>
-                <i class="fas fa-phone fa-lg" style="color:var(--neon)" onclick="callPeer('audio')"></i>
+            <div><b style="color:var(--neon)">V48 TERMINAL</b><br><small id="conn-stat" style="color:var(--blue); font-size:10px;">SECURE CHANNEL</small></div>
+            <div style="display:flex; gap:25px;">
+                <i class="fas fa-video fa-xl" style="color:var(--blue)" onclick="call('video')"></i>
+                <i class="fas fa-phone-alt fa-xl" style="color:var(--neon)" onclick="call('audio')"></i>
             </div>
         </div>
         <div class="feed" id="chat-feed"></div>
-        <div class="bot-bar">
-            <div class="emoji-list">
-                <span onclick="sendEmoji('❤️')">❤️</span><span onclick="sendEmoji('🔥')">🔥</span>
-                <span onclick="sendEmoji('😂')">😂</span><span onclick="sendEmoji('😮')">😮</span>
-                <span onclick="sendEmoji('⚡️')">⚡️</span>
+        <div style="padding:15px; background:rgba(0,0,0,0.9); border-top:1px solid var(--neon);">
+            <div style="display:flex; gap:15px; margin-bottom:10px; justify-content:center; font-size:25px;">
+                <span onclick="sendEmo('❤️')">❤️</span><span onclick="sendEmo('🔥')">🔥</span><span onclick="sendEmo('⚡')">⚡</span><span onclick="sendEmo('💀')">💀</span>
             </div>
-            <div class="input-row">
-                <input type="text" id="msg-in" class="msg-box" placeholder="Kripto mesaj...">
-                <button onclick="sendTxt()" style="background:transparent; border:none; color:var(--blue); font-size: 25px;"><i class="fas fa-paper-plane"></i></button>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="msg-in" style="flex:1; background:#111; border:1px solid #333; color:#fff; padding:15px; border-radius:5px;" placeholder="Base64 Kripto...">
+                <button onclick="sendMsg()" style="background:transparent; border:none; color:var(--blue); font-size:25px;"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
+        <div class="boss-footer">ISMAIL BOSS SYSTEM</div>
     </div>
 
     <div id="media-layer">
         <video id="remote-v" autoplay playsinline></video>
         <video id="local-v" autoplay muted playsinline></video>
-        <div id="audio-only-ui">
-            <i class="fas fa-user-secret fa-6x" style="color:var(--neon); margin-bottom: 20px;"></i>
-            <h2 id="audio-timer">SƏSLİ ZƏNG AKTİVDİR</h2>
-        </div>
-        <button class="end-btn" onclick="terminate()"><i class="fas fa-phone-slash"></i></button>
+        <button class="end-call" onclick="terminate()"><i class="fas fa-phone-slash"></i></button>
     </div>
 
 <script>
-const ENCRYPT_KEY = "BOSS-V45-SECRET";
-const HOST_ID = "ISMAIL-ULTRA-BEAST";
-let peer, conn, localStream, currentCall;
+const S_KEY = "BOSS-V48-AES-ULTRA-BASE64-KEY";
+const BOSS_ID = "ISMAIL-V48-PHANTOM-CORE";
+let peer, conn, myStream, currentCall;
 
-// Radar Animasiyası və Başlanğıc
+// Ultra Şifrələmə
+const pack = (v) => btoa(CryptoJS.AES.encrypt(JSON.stringify(v), S_KEY).toString());
+const unpack = (v) => JSON.parse(CryptoJS.AES.decrypt(atob(v), S_KEY).toString(CryptoJS.enc.Utf8));
+
+// Reklam Ardıcıllığı
 window.onload = () => {
     initMatrix();
+    const ad1 = document.getElementById('ad1');
+    const ad1Text = document.getElementById('ad1-text');
+    const ad2 = document.getElementById('ad2');
+    const ad2Text = document.getElementById('ad2-text');
+
+    setTimeout(() => { ad1Text.classList.add('show'); }, 500);
+    setTimeout(() => { 
+        ad1Text.classList.add('slide-out');
+        setTimeout(() => {
+            ad1.style.display = 'none';
+            ad2.style.display = 'flex';
+            setTimeout(() => { ad2Text.classList.add('show'); }, 100);
+        }, 800);
+    }, 3000);
+
     setTimeout(() => {
-        document.getElementById('intro-screen').style.display = 'none';
-        document.getElementById('login-screen').style.display = 'flex';
-    }, 3500);
+        ad2Text.classList.add('slide-out');
+        setTimeout(() => {
+            ad2.style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+        }, 800);
+    }, 6500);
 };
 
-function startSystem(role) {
+function initSystem(role) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('scan-screen').style.display = 'flex';
     
-    const myId = (role === 'BOSS') ? HOST_ID : "GUEST-" + Math.floor(Math.random()*9999);
-    peer = new Peer(myId, { 
-        config: {'iceServers': [{urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun2.l.google.com:19302'}]},
-        debug: 1
+    const myId = (role === 'BOSS') ? BOSS_ID : "GUEST-" + Math.floor(Math.random()*99999);
+    peer = new Peer(myId, {
+        config: {'iceServers': [
+            {urls: 'stun:stun.l.google.com:19302'},
+            {urls: 'stun:stun1.l.google.com:19302'},
+            {urls: 'stun:stun2.l.google.com:19302'}
+        ]}
     });
 
-    peer.on('open', (id) => {
-        if(role === 'GUEST') connectToBoss();
-        document.getElementById('scan-info').innerHTML = role + " AKTİVDİR...<br>GÜVƏNLİ KANAL AXTARILIR";
+    peer.on('open', () => {
+        if(role === 'GUEST') connectLoop();
+        document.getElementById('scan-status').innerText = role + " MODU AKTİVDİR...";
     });
 
-    peer.on('connection', (c) => {
+    peer.on('connection', c => {
         conn = c;
-        handleConn();
+        conn.on('data', d => handleData(unpack(d)));
+        enterTerminal();
     });
 
-    peer.on('call', incomingCall => {
-        if(confirm("Gələn şifrəli zəngi qəbul edirsiniz?")) {
-            const isVideo = incomingCall.options.constraints.video !== false;
-            navigator.mediaDevices.getUserMedia({ 
-                video: isVideo ? { facingMode: "user", width: 1280, height: 720 } : false, 
-                audio: { echoCancellation: true, noiseSuppression: true } 
-            }).then(stream => {
-                localStream = stream;
-                showMediaUI(isVideo);
-                incomingCall.answer(stream);
-                incomingCall.on('stream', rs => document.getElementById('remote-v').srcObject = rs);
-                currentCall = incomingCall;
+    peer.on('call', call => {
+        if(confirm("Gələn Ultra Şifrəli Zəngi Qəbul Edirsiniz?")) {
+            const isVid = call.options.constraints.video !== false;
+            navigator.mediaDevices.getUserMedia({video: isVid, audio: true}).then(s => {
+                myStream = s;
+                showMedia(isVid);
+                call.answer(s);
+                call.on('stream', rs => document.getElementById('remote-v').srcObject = rs);
+                currentCall = call;
             });
         }
     });
 }
 
-function connectToBoss() {
-    const c = peer.connect(HOST_ID, { reliable: true });
-    c.on('open', () => { conn = c; handleConn(); });
-    setTimeout(() => { if(!conn) connectToBoss(); }, 3000);
+function connectLoop() {
+    const c = peer.connect(BOSS_ID, {reliable: true});
+    c.on('open', () => {
+        conn = c;
+        conn.on('data', d => handleData(unpack(d)));
+        enterTerminal();
+    });
+    setTimeout(() => { if(!conn) connectLoop(); }, 1500);
 }
 
-function handleConn() {
-    document.getElementById('scan-info').innerText = "BAĞLANTI 100% QURULDU!";
-    document.getElementById('scan-info').style.color = "var(--blue)";
+function enterTerminal() {
+    document.getElementById('scan-status').innerText = "BAĞLANTI 100% QURULDU!";
     setTimeout(() => {
         document.getElementById('scan-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'flex';
-        document.getElementById('conn-stat').innerText = "BAĞLANTI GÜVƏNLİDİR";
-        confetti({ particleCount: 150, spread: 100 });
-    }, 1500);
-
-    conn.on('data', raw => {
-        const dec = CryptoJS.AES.decrypt(raw, ENCRYPT_KEY).toString(CryptoJS.enc.Utf8);
-        const data = JSON.parse(dec);
-        if(data.type === 'msg') addBubble(data.val, 'them');
-        if(data.type === 'emo') { triggerConfetti(); addBubble(data.val, 'them'); }
-        if(data.type === 'end') terminate(true);
-    });
+        confetti({ particleCount: 200, spread: 80, origin: { y: 0.7 } });
+    }, 1200);
 }
 
-// Mesajlaşma
-function sendTxt() {
-    const inp = document.getElementById('msg-in');
-    if(!inp.value || !conn) return;
-    const payload = JSON.stringify({type:'msg', val: inp.value});
-    const enc = CryptoJS.AES.encrypt(payload, ENCRYPT_KEY).toString();
-    conn.send(enc);
-    addBubble(inp.value, 'me');
-    inp.value = "";
+function handleData(data) {
+    if(data.t === 'msg') addBubble(data.v, 'them');
+    if(data.t === 'emo') { trigger8D(data.v); addBubble(data.v, 'them'); }
+    if(data.t === 'end') terminate(true);
 }
 
-function sendEmoji(emo) {
-    const payload = JSON.stringify({type:'emo', val: emo});
-    const enc = CryptoJS.AES.encrypt(payload, ENCRYPT_KEY).toString();
-    conn.send(enc);
-    addBubble(emo, 'me');
-    triggerConfetti();
+function sendMsg() {
+    const i = document.getElementById('msg-in');
+    if(!i.value || !conn) return;
+    conn.send(pack({t:'msg', v:i.value}));
+    addBubble(i.value, 'me');
+    i.value = "";
 }
 
-function addBubble(txt, owner) {
+function sendEmo(e) {
+    conn.send(pack({t:'emo', v:e}));
+    trigger8D(e);
+    addBubble(e, 'me');
+}
+
+function addBubble(v, w) {
     const b = document.createElement('div');
-    b.className = `bubble ${owner}`;
-    b.innerText = txt;
+    b.className = `bubble ${w}`;
+    b.innerText = v;
     const f = document.getElementById('chat-feed');
     f.appendChild(b);
     f.scrollTop = f.scrollHeight;
 }
 
-// Media (Zəng) Funksiyaları
-async function callPeer(mode) {
-    const isVideo = mode === 'video';
-    showMediaUI(isVideo);
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: isVideo ? { facingMode: "user", width: 1280 } : false,
-            audio: { echoCancellation: true, noiseSuppression: true }
-        });
-        localStream = stream;
-        document.getElementById('local-v').srcObject = isVideo ? stream : null;
-        
-        currentCall = peer.call(conn.peer, stream);
-        currentCall.on('stream', rs => {
-            const rv = document.getElementById('remote-v');
-            rv.srcObject = rs;
-            rv.play();
-        });
-
-        // Səsli zəngdə sensor dəstəyi simulyasiyası
-        if(!isVideo && 'ProximitySensor' in window) {
-            const sensor = new ProximitySensor();
-            sensor.onreading = () => {
-                document.body.style.opacity = sensor.near ? "0.01" : "1";
-            };
-            sensor.start();
-        }
-    } catch(err) { terminate(); alert("Media icazəsi rədd edildi."); }
+async function call(mode) {
+    const isVid = mode === 'video';
+    showMedia(isVid);
+    const s = await navigator.mediaDevices.getUserMedia({
+        video: isVid ? {facingMode:"user", width:1280} : false,
+        audio: {echoCancellation: true}
+    });
+    myStream = s;
+    document.getElementById('local-v').srcObject = isVid ? s : null;
+    currentCall = peer.call(conn.peer, s);
+    currentCall.on('stream', rs => document.getElementById('remote-v').srcObject = rs);
 }
 
-function showMediaUI(isVideo) {
+function showMedia(isVid) {
     document.getElementById('media-layer').style.display = 'block';
-    document.getElementById('audio-only-ui').style.display = isVideo ? 'none' : 'flex';
-    document.getElementById('local-v').style.display = isVideo ? 'block' : 'none';
+    document.getElementById('local-v').style.display = isVid ? 'block' : 'none';
 }
 
 function terminate(remote = false) {
-    if(!remote && conn) {
-        const enc = CryptoJS.AES.encrypt(JSON.stringify({type:'end'}), ENCRYPT_KEY).toString();
-        conn.send(enc);
-    }
-    if(localStream) localStream.getTracks().forEach(t => t.stop());
+    if(!remote && conn) conn.send(pack({t:'end'}));
+    if(myStream) myStream.getTracks().forEach(t => t.stop());
     document.getElementById('media-layer').style.display = 'none';
 }
 
-function triggerConfetti() {
-    confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
+function trigger8D(emo) {
+    confetti({ particleCount: 100, spread: 360, startVelocity: 30, shapes: [confetti.shapeFromText({text:emo})] });
 }
 
 function initMatrix() {
@@ -283,3 +280,4 @@ function initMatrix() {
 </script>
 </body>
 </html>
+
