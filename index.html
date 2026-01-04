@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ISMAIL BOSS | V43 BEAST</title>
+    <title>ISMAIL BOSS | V45 ULTRA</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
@@ -12,46 +12,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <style>
-        :root { --neon: #00ff41; --danger: #ff003c; --blue: #00f2ff; --bg: #000000; --gold: #ffd700; }
+        :root { --neon: #00ff41; --danger: #ff003c; --blue: #00f2ff; --bg: #000; --gold: #ffd700; }
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; outline: none; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; font-family: 'Orbitron', sans-serif; }
 
         #matrix-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.15; }
 
         /* INTRO */
-        #intro-screen { position: fixed; inset: 0; z-index: 5000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .intro-title { font-size: 3rem; color: var(--neon); text-shadow: 0 0 20px var(--neon); animation: pulse 1s infinite alternate; }
+        #intro-screen { position: fixed; inset: 0; z-index: 5000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .glitch { font-size: 3rem; color: var(--neon); text-shadow: 0 0 10px var(--neon); animation: pulse 1.5s infinite; }
 
         /* LOGIN */
-        #login-screen { position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-        .role-btn { width: 280px; padding: 25px; border: 2px solid var(--neon); background: transparent; color: var(--neon); font-size: 1.2rem; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        #login-screen { position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+        .btn-main { width: 280px; padding: 20px; border: 2px solid var(--neon); background: transparent; color: var(--neon); font-size: 1.1rem; font-weight: 900; cursor: pointer; border-radius: 5px; box-shadow: 0 0 10px var(--neon); }
 
-        /* APP */
-        #app-screen { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; background: #050505; }
-        .top-bar { padding: 15px; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; background: #000; }
-        
-        .secure-notice { background: rgba(255, 215, 0, 0.05); border: 1px solid var(--gold); color: var(--gold); padding: 8px; border-radius: 10px; font-size: 10px; text-align: center; margin: 10px; font-family: 'Share Tech Mono'; }
+        /* RADAR SCAN */
+        #scan-screen { position: fixed; inset: 0; z-index: 3000; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .radar-box { width: 250px; height: 250px; border: 1px solid var(--neon); border-radius: 50%; position: relative; overflow: hidden; }
+        .radar-line { position: absolute; width: 100%; height: 100%; background: conic-gradient(from 0deg, transparent, var(--neon)); animation: rotate 2s linear infinite; opacity: 0.4; border-radius: 50%; }
+        .scan-txt { margin-top: 20px; font-family: 'Share Tech Mono'; color: var(--neon); text-align: center; }
 
-        .feed { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .bubble { padding: 12px 18px; border-radius: 8px; max-width: 80%; font-family: 'Share Tech Mono'; position: relative; }
-        .me { align-self: flex-end; background: #004d40; border-right: 4px solid var(--blue); }
-        .them { align-self: flex-start; background: #263238; border-left: 4px solid var(--neon); }
-        
-        .bot-bar { padding: 15px; background: #000; border-top: 1px solid var(--neon); display: flex; gap: 8px; align-items: center; }
-        .msg-box { flex: 1; background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 5px; font-family: 'Share Tech Mono'; }
+        /* CHAT APP */
+        #app-screen { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; }
+        .top-bar { padding: 15px; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; background: #000; box-shadow: 0 5px 15px rgba(0,255,65,0.2); }
+        .feed { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { padding: 12px; border-radius: 10px; max-width: 75%; font-family: 'Share Tech Mono'; line-height: 1.4; font-size: 14px; }
+        .me { align-self: flex-end; background: #004d40; border-right: 3px solid var(--blue); }
+        .them { align-self: flex-start; background: #212121; border-left: 3px solid var(--neon); }
 
-        /* EMOJI PANEL */
-        .emoji-panel { display: flex; gap: 5px; }
-        .emoji-btn { font-size: 20px; cursor: pointer; transition: 0.2s; }
-        .emoji-btn:active { transform: scale(1.5); }
+        .bot-bar { padding: 15px; background: #000; border-top: 1px solid var(--neon); display: flex; flex-direction: column; gap: 10px; }
+        .emoji-list { display: flex; justify-content: space-around; font-size: 22px; }
+        .input-row { display: flex; gap: 10px; width: 100%; }
+        .msg-box { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 5px; }
 
-        /* VIDEO CALL LAYER */
-        #vid-layer { position: fixed; inset: 0; z-index: 5500; background: #000; display: none; }
+        /* MEDIA LAYER */
+        #media-layer { position: fixed; inset: 0; z-index: 6000; background: #000; display: none; }
         #remote-v { width: 100%; height: 100%; object-fit: cover; }
-        #local-v { position: absolute; top: 20px; right: 20px; width: 100px; height: 150px; border: 2px solid var(--neon); border-radius: 8px; z-index: 5600; object-fit: cover; background: #111; }
-        .end-call { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: var(--danger); border-radius: 50%; border: none; color: #fff; font-size: 25px; box-shadow: 0 0 20px var(--danger); cursor: pointer; }
+        #local-v { position: absolute; top: 20px; right: 20px; width: 110px; height: 160px; border: 2px solid var(--blue); border-radius: 10px; object-fit: cover; }
+        #audio-only-ui { position: fixed; inset: 0; background: radial-gradient(circle, #002200, #000); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 6100; }
+        .end-btn { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); width: 75px; height: 75px; background: var(--danger); border-radius: 50%; border: none; color: #fff; font-size: 30px; box-shadow: 0 0 20px var(--danger); }
 
-        @keyframes pulse { from { transform: scale(0.95); } to { transform: scale(1.05); } }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1.02); } }
     </style>
 </head>
 <body>
@@ -59,219 +61,225 @@
     <canvas id="matrix-bg"></canvas>
 
     <div id="intro-screen">
-        <h1 class="intro-title">PHANTOM V43</h1>
-        <p style="color:var(--blue); letter-spacing: 5px;">ISMAIL BOSS ELITE</p>
-        <div style="color:var(--gold); border:1px solid; padding:5px 15px; margin-top:20px; font-size: 12px;">END-TO-END ENCRYPTION</div>
+        <h1 class="glitch">V45 ULTRA</h1>
+        <p style="color:var(--blue); letter-spacing: 3px;">BY ISMAIL BOSS</p>
     </div>
 
     <div id="login-screen">
-        <button class="role-btn" onclick="boot('BOSS')" style="color:var(--blue); border-color:var(--blue)">BOSS (HOST)</button>
-        <button class="role-btn" onclick="boot('GUEST')">QONAQ (JOIN)</button>
+        <button class="btn-main" onclick="startSystem('BOSS')">BOSS MODE (HOST)</button>
+        <button class="btn-main" onclick="startSystem('GUEST')" style="color:var(--blue); border-color:var(--blue); box-shadow: 0 0 10px var(--blue);">GUEST MODE (JOIN)</button>
+    </div>
+
+    <div id="scan-screen">
+        <div class="radar-box">
+            <div class="radar-line"></div>
+            <i class="fas fa-shield-halved fa-4x" style="color:var(--neon); position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.3;"></i>
+        </div>
+        <div class="scan-txt" id="scan-info">SİSTEM GÜVƏNİLİR...<br>BAĞLANTI AXTARILIR</div>
     </div>
 
     <div id="app-screen">
         <div class="top-bar">
-            <div><b style="color:var(--neon)">V43 BEAST</b><br><small id="status" style="font-size: 9px; color: #888;">OFFLINE</small></div>
+            <div><b id="user-tag" style="color:var(--neon)">V45 BEAST</b><br><small id="conn-stat" style="color:var(--gold); font-size:10px;">SCANNING...</small></div>
             <div style="display:flex; gap:20px;">
-                <i class="fas fa-video fa-lg" style="color:var(--blue)" onclick="prep('video')"></i>
-                <i class="fas fa-phone-alt fa-lg" style="color:var(--neon)" onclick="prep('audio')"></i>
+                <i class="fas fa-video fa-lg" style="color:var(--blue)" onclick="callPeer('video')"></i>
+                <i class="fas fa-phone fa-lg" style="color:var(--neon)" onclick="callPeer('audio')"></i>
             </div>
         </div>
-        
-        <div class="feed" id="chat-feed">
-            <div class="secure-notice">
-                <i class="fas fa-lock"></i> Bütün yazışmalarınız İsmail tərəfindən qorunur. Gizliliyiniz önəmlidir.
-            </div>
-        </div>
-
+        <div class="feed" id="chat-feed"></div>
         <div class="bot-bar">
-            <div class="emoji-panel">
-                <span class="emoji-btn" onclick="sendEmoji('❤️')">❤️</span>
-                <span class="emoji-btn" onclick="sendEmoji('🔥')">🔥</span>
-                <span class="emoji-btn" onclick="sendEmoji('👍')">👍</span>
+            <div class="emoji-list">
+                <span onclick="sendEmoji('❤️')">❤️</span><span onclick="sendEmoji('🔥')">🔥</span>
+                <span onclick="sendEmoji('😂')">😂</span><span onclick="sendEmoji('😮')">😮</span>
+                <span onclick="sendEmoji('⚡️')">⚡️</span>
             </div>
-            <input type="text" class="msg-box" id="msg-in" placeholder="Mesaj yazın...">
-            <i class="fas fa-paper-plane fa-lg" style="color:var(--blue); cursor: pointer;" onclick="sendTxt()"></i>
+            <div class="input-row">
+                <input type="text" id="msg-in" class="msg-box" placeholder="Kripto mesaj...">
+                <button onclick="sendTxt()" style="background:transparent; border:none; color:var(--blue); font-size: 25px;"><i class="fas fa-paper-plane"></i></button>
+            </div>
         </div>
     </div>
 
-    <div id="vid-layer">
+    <div id="media-layer">
         <video id="remote-v" autoplay playsinline></video>
         <video id="local-v" autoplay muted playsinline></video>
-        <button class="end-call" onclick="end()"><i class="fas fa-phone-slash"></i></button>
+        <div id="audio-only-ui">
+            <i class="fas fa-user-secret fa-6x" style="color:var(--neon); margin-bottom: 20px;"></i>
+            <h2 id="audio-timer">SƏSLİ ZƏNG AKTİVDİR</h2>
+        </div>
+        <button class="end-btn" onclick="terminate()"><i class="fas fa-phone-slash"></i></button>
     </div>
 
 <script>
-const KEY = "V43_ISMAIL_BOSS_SECURE";
-const BOSS_ID = "ISMAIL-V43-MASTER-77"; // Daha güclü ID
-let peer, conn, myStream, curCall, cType;
+const ENCRYPT_KEY = "BOSS-V45-SECRET";
+const HOST_ID = "ISMAIL-ULTRA-BEAST";
+let peer, conn, localStream, currentCall;
 
-const sndEmoji = new Audio("https://cdn.freesound.org/previews/124/124902_2257257-lq.mp3");
-const sndMsg = new Audio("https://cdn.freesound.org/previews/554/554220_11861213-lq.mp3");
-
+// Radar Animasiyası və Başlanğıc
 window.onload = () => {
-    drawMatrix();
+    initMatrix();
     setTimeout(() => {
         document.getElementById('intro-screen').style.display = 'none';
         document.getElementById('login-screen').style.display = 'flex';
-    }, 4000);
+    }, 3500);
 };
 
-function boot(role) {
+function startSystem(role) {
     document.getElementById('login-screen').style.display = 'none';
-    const myId = (role === 'BOSS') ? BOSS_ID : "GUEST-" + Math.floor(Math.random()*99999);
+    document.getElementById('scan-screen').style.display = 'flex';
     
-    peer = new Peer(myId, {
-        config: {'iceServers': [{urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'}]},
+    const myId = (role === 'BOSS') ? HOST_ID : "GUEST-" + Math.floor(Math.random()*9999);
+    peer = new Peer(myId, { 
+        config: {'iceServers': [{urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun2.l.google.com:19302'}]},
         debug: 1
     });
 
     peer.on('open', (id) => {
-        document.getElementById('app-screen').style.display = 'flex';
-        document.getElementById('status').innerText = "SİSTEM AKTİVDİR: " + id;
-        if(role === 'GUEST') tryConnect();
+        if(role === 'GUEST') connectToBoss();
+        document.getElementById('scan-info').innerHTML = role + " AKTİVDİR...<br>GÜVƏNLİ KANAL AXTARILIR";
     });
 
     peer.on('connection', (c) => {
         conn = c;
-        setup();
+        handleConn();
     });
 
-    peer.on('call', call => {
-        if(confirm("İsmail Boss Sistemindən gələn zəngi qəbul edirsiz?")) {
-            navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(s => {
-                myStream = s;
-                document.getElementById('vid-layer').style.display = 'block';
-                document.getElementById('local-v').srcObject = s;
-                call.answer(s);
-                call.on('stream', rs => {
-                    const rv = document.getElementById('remote-v');
-                    rv.srcObject = rs;
-                    rv.play();
-                });
-                curCall = call;
+    peer.on('call', incomingCall => {
+        if(confirm("Gələn şifrəli zəngi qəbul edirsiniz?")) {
+            const isVideo = incomingCall.options.constraints.video !== false;
+            navigator.mediaDevices.getUserMedia({ 
+                video: isVideo ? { facingMode: "user", width: 1280, height: 720 } : false, 
+                audio: { echoCancellation: true, noiseSuppression: true } 
+            }).then(stream => {
+                localStream = stream;
+                showMediaUI(isVideo);
+                incomingCall.answer(stream);
+                incomingCall.on('stream', rs => document.getElementById('remote-v').srcObject = rs);
+                currentCall = incomingCall;
             });
         }
     });
+}
 
-    peer.on('error', (err) => {
-        console.error(err);
-        document.getElementById('status').innerText = "XƏTA BAŞ VERDİ";
+function connectToBoss() {
+    const c = peer.connect(HOST_ID, { reliable: true });
+    c.on('open', () => { conn = c; handleConn(); });
+    setTimeout(() => { if(!conn) connectToBoss(); }, 3000);
+}
+
+function handleConn() {
+    document.getElementById('scan-info').innerText = "BAĞLANTI 100% QURULDU!";
+    document.getElementById('scan-info').style.color = "var(--blue)";
+    setTimeout(() => {
+        document.getElementById('scan-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display = 'flex';
+        document.getElementById('conn-stat').innerText = "BAĞLANTI GÜVƏNLİDİR";
+        confetti({ particleCount: 150, spread: 100 });
+    }, 1500);
+
+    conn.on('data', raw => {
+        const dec = CryptoJS.AES.decrypt(raw, ENCRYPT_KEY).toString(CryptoJS.enc.Utf8);
+        const data = JSON.parse(dec);
+        if(data.type === 'msg') addBubble(data.val, 'them');
+        if(data.type === 'emo') { triggerConfetti(); addBubble(data.val, 'them'); }
+        if(data.type === 'end') terminate(true);
     });
 }
 
-function tryConnect() {
-    const c = peer.connect(BOSS_ID, {reliable: true});
-    c.on('open', () => { 
-        conn = c; 
-        setup(); 
-        document.getElementById('status').innerText = "BOSS-A QOŞULDU";
-    });
-    setTimeout(() => { if(!conn) tryConnect(); }, 3000);
-}
-
-function setup() {
-    conn.on('data', (raw) => {
-        try {
-            const bytes = CryptoJS.AES.decrypt(raw, KEY);
-            const d = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-            if(d.t === 'txt') { addMsg(d.c, 'them'); sndMsg.play(); }
-            if(d.t === 'emo') { triggerEmoji(d.c); }
-            if(d.t === 'end') { end(true); }
-        } catch(e) { console.log("Decrypt error"); }
-    });
-    conn.on('close', () => { document.getElementById('status').innerText = "BAĞLANTI KƏSİLDİ"; });
-}
-
+// Mesajlaşma
 function sendTxt() {
-    const i = document.getElementById('msg-in');
-    if(!i.value || !conn) return;
-    const enc = CryptoJS.AES.encrypt(JSON.stringify({t:'txt', c:i.value}), KEY).toString();
+    const inp = document.getElementById('msg-in');
+    if(!inp.value || !conn) return;
+    const payload = JSON.stringify({type:'msg', val: inp.value});
+    const enc = CryptoJS.AES.encrypt(payload, ENCRYPT_KEY).toString();
     conn.send(enc);
-    addMsg(i.value, 'me');
-    i.value = "";
+    addBubble(inp.value, 'me');
+    inp.value = "";
 }
 
 function sendEmoji(emo) {
-    if(!conn) return;
-    const enc = CryptoJS.AES.encrypt(JSON.stringify({t:'emo', c:emo}), KEY).toString();
+    const payload = JSON.stringify({type:'emo', val: emo});
+    const enc = CryptoJS.AES.encrypt(payload, ENCRYPT_KEY).toString();
     conn.send(enc);
-    triggerEmoji(emo);
+    addBubble(emo, 'me');
+    triggerConfetti();
 }
 
-function triggerEmoji(emo) {
-    sndEmoji.play();
-    confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.7 },
-        colors: emo === '❤️' ? ['#ff0000'] : (emo === '🔥' ? ['#ff6600', '#ffcc00'] : ['#00ff41'])
-    });
-}
-
-function addMsg(t, w) {
-    const d = document.createElement('div');
-    d.className = `bubble ${w}`;
-    d.innerText = t;
+function addBubble(txt, owner) {
+    const b = document.createElement('div');
+    b.className = `bubble ${owner}`;
+    b.innerText = txt;
     const f = document.getElementById('chat-feed');
-    f.appendChild(d);
+    f.appendChild(b);
     f.scrollTop = f.scrollHeight;
 }
 
-async function prep(type) {
-    if(!conn) return alert("Hələ qoşulmayıb!");
-    cType = type;
-    document.getElementById('vid-layer').style.display = 'block';
+// Media (Zəng) Funksiyaları
+async function callPeer(mode) {
+    const isVideo = mode === 'video';
+    showMediaUI(isVideo);
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({video: type==='video', audio:true});
-        myStream = stream;
-        document.getElementById('local-v').srcObject = stream;
-        curCall = peer.call(conn.peer, stream);
-        curCall.on('stream', rs => {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: isVideo ? { facingMode: "user", width: 1280 } : false,
+            audio: { echoCancellation: true, noiseSuppression: true }
+        });
+        localStream = stream;
+        document.getElementById('local-v').srcObject = isVideo ? stream : null;
+        
+        currentCall = peer.call(conn.peer, stream);
+        currentCall.on('stream', rs => {
             const rv = document.getElementById('remote-v');
             rv.srcObject = rs;
             rv.play();
         });
-    } catch(e) { 
-        alert("Kamera/Mikrofon tapılmadı.");
-        document.getElementById('vid-layer').style.display = 'none';
-    }
+
+        // Səsli zəngdə sensor dəstəyi simulyasiyası
+        if(!isVideo && 'ProximitySensor' in window) {
+            const sensor = new ProximitySensor();
+            sensor.onreading = () => {
+                document.body.style.opacity = sensor.near ? "0.01" : "1";
+            };
+            sensor.start();
+        }
+    } catch(err) { terminate(); alert("Media icazəsi rədd edildi."); }
 }
 
-function end(remote = false) {
+function showMediaUI(isVideo) {
+    document.getElementById('media-layer').style.display = 'block';
+    document.getElementById('audio-only-ui').style.display = isVideo ? 'none' : 'flex';
+    document.getElementById('local-v').style.display = isVideo ? 'block' : 'none';
+}
+
+function terminate(remote = false) {
     if(!remote && conn) {
-        const enc = CryptoJS.AES.encrypt(JSON.stringify({t:'end'}), KEY).toString();
+        const enc = CryptoJS.AES.encrypt(JSON.stringify({type:'end'}), ENCRYPT_KEY).toString();
         conn.send(enc);
     }
-    if(myStream) myStream.getTracks().forEach(t => t.stop());
-    if(curCall) curCall.close();
-    document.getElementById('vid-layer').style.display = 'none';
+    if(localStream) localStream.getTracks().forEach(t => t.stop());
+    document.getElementById('media-layer').style.display = 'none';
 }
 
-function drawMatrix() {
+function triggerConfetti() {
+    confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
+}
+
+function initMatrix() {
     const c = document.getElementById('matrix-bg');
     const x = c.getContext('2d');
     c.width = window.innerWidth; c.height = window.innerHeight;
     const drops = Array(Math.floor(c.width/20)).fill(1);
-    function anim() {
+    function draw() {
         x.fillStyle = "rgba(0,0,0,0.05)"; x.fillRect(0,0,c.width,c.height);
         x.fillStyle = "#0f0";
         drops.forEach((y, i) => {
-            x.fillText(Math.random()>0.5?"1":"0", i*20, y*20);
-            if(y*20 > c.height && Math.random()>0.975) drops[i]=0;
+            x.fillText(Math.random() > 0.5 ? "1" : "0", i*20, y*20);
+            if(y*20 > c.height && Math.random() > 0.98) drops[i] = 0;
             drops[i]++;
         });
-        requestAnimationFrame(anim);
+        requestAnimationFrame(draw);
     }
-    anim();
+    draw();
 }
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
