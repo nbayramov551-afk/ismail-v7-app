@@ -3,69 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ISMAIL BOSS | V40 PHANTOM</title>
+    <title>ISMAIL BOSS | V43 BEAST</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <style>
-        :root { --neon: #00ff41; --danger: #ff003c; --blue: #00f2ff; --bg: #000000; }
+        :root { --neon: #00ff41; --danger: #ff003c; --blue: #00f2ff; --bg: #000000; --gold: #ffd700; }
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; outline: none; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; font-family: 'Orbitron', sans-serif; }
 
-        /* ARXA PLAN */
         #matrix-bg { position: fixed; inset: 0; z-index: -1; opacity: 0.15; }
 
-        /* 1. INTRO (3 Saniyə) */
-        #intro-screen { position: fixed; inset: 0; z-index: 5000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .intro-txt { font-size: 2.5rem; color: var(--neon); letter-spacing: 4px; animation: glitch 0.3s infinite; text-align: center; }
+        /* INTRO */
+        #intro-screen { position: fixed; inset: 0; z-index: 5000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .intro-title { font-size: 3rem; color: var(--neon); text-shadow: 0 0 20px var(--neon); animation: pulse 1s infinite alternate; }
 
-        /* 2. LOGIN */
+        /* LOGIN */
         #login-screen { position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-        .role-btn { width: 280px; padding: 25px; border: 2px solid var(--neon); background: transparent; color: var(--neon); font-size: 1.2rem; font-weight: 900; cursor: pointer; transition: 0.2s; font-family: 'Orbitron'; }
-        .role-btn:active { background: var(--neon); color: #000; transform: scale(0.95); }
-        .boss-style { border-color: var(--blue); color: var(--blue); }
-        .boss-style:active { background: var(--blue); }
+        .role-btn { width: 280px; padding: 25px; border: 2px solid var(--neon); background: transparent; color: var(--neon); font-size: 1.2rem; font-weight: 900; cursor: pointer; text-transform: uppercase; }
 
-        /* 3. SCAN (Status Ekranı) */
-        #scan-screen { position: fixed; inset: 0; z-index: 3000; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .radar-ring { width: 200px; height: 200px; border: 2px solid #333; border-radius: 50%; position: relative; box-shadow: 0 0 30px var(--neon); }
-        .radar-line { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(transparent 270deg, var(--neon)); animation: spin 2s linear infinite; }
-        .status-log { margin-top: 40px; color: var(--neon); font-family: 'Share Tech Mono'; font-size: 14px; text-align: center; line-height: 1.5; min-height: 50px; }
-        .retry-btn { margin-top: 20px; padding: 10px 30px; background: var(--danger); border: none; color: white; display: none; cursor: pointer; font-weight: bold; animation: pulse 1s infinite; }
-
-        /* 4. MAIN APP */
+        /* APP */
         #app-screen { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; background: #050505; }
-        .top-bar { padding: 15px; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; background: #000; box-shadow: 0 5px 20px rgba(0,255,65,0.1); }
-        .feed { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
-        .bubble { padding: 12px 18px; border-radius: 6px; max-width: 85%; font-family: 'Share Tech Mono'; font-size: 15px; word-break: break-word; position: relative; }
-        .me { align-self: flex-end; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--blue); color: var(--blue); border-right: 4px solid var(--blue); }
-        .them { align-self: flex-start; background: rgba(0, 255, 65, 0.1); border: 1px solid var(--neon); color: var(--neon); border-left: 4px solid var(--neon); }
+        .top-bar { padding: 15px; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; background: #000; }
         
-        .bot-bar { padding: 15px; background: #000; border-top: 1px solid var(--neon); display: flex; gap: 15px; align-items: center; }
-        .msg-box { flex: 1; background: #111; border: 1px solid #333; color: white; padding: 15px; font-family: 'Share Tech Mono'; border-radius: 4px; }
+        .secure-notice { background: rgba(255, 215, 0, 0.05); border: 1px solid var(--gold); color: var(--gold); padding: 8px; border-radius: 10px; font-size: 10px; text-align: center; margin: 10px; font-family: 'Share Tech Mono'; }
 
-        /* 5. CALL OVERLAY */
-        #call-ui { position: fixed; inset: 0; z-index: 6000; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .call-icon { font-size: 80px; color: var(--neon); margin-bottom: 20px; animation: vibrate 0.5s infinite; }
-        .call-txt { font-size: 2rem; color: #fff; margin-bottom: 50px; text-align: center; letter-spacing: 2px; }
-        .btn-row { display: flex; gap: 40px; }
-        .c-btn { width: 75px; height: 75px; border-radius: 50%; border: none; font-size: 30px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .accept { background: #00c853; box-shadow: 0 0 25px #00c853; }
-        .reject { background: #d50000; box-shadow: 0 0 25px #d50000; }
+        .feed { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .bubble { padding: 12px 18px; border-radius: 8px; max-width: 80%; font-family: 'Share Tech Mono'; position: relative; }
+        .me { align-self: flex-end; background: #004d40; border-right: 4px solid var(--blue); }
+        .them { align-self: flex-start; background: #263238; border-left: 4px solid var(--neon); }
+        
+        .bot-bar { padding: 15px; background: #000; border-top: 1px solid var(--neon); display: flex; gap: 8px; align-items: center; }
+        .msg-box { flex: 1; background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 5px; font-family: 'Share Tech Mono'; }
 
-        /* 6. VIDEO */
+        /* EMOJI PANEL */
+        .emoji-panel { display: flex; gap: 5px; }
+        .emoji-btn { font-size: 20px; cursor: pointer; transition: 0.2s; }
+        .emoji-btn:active { transform: scale(1.5); }
+
+        /* VIDEO CALL LAYER */
         #vid-layer { position: fixed; inset: 0; z-index: 5500; background: #000; display: none; }
         #remote-v { width: 100%; height: 100%; object-fit: cover; }
-        #local-v { position: absolute; top: 20px; right: 20px; width: 100px; height: 150px; border: 2px solid var(--neon); background: #000; object-fit: cover; border-radius: 5px; }
-        .end-call { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: var(--danger); border-radius: 50%; border: none; color: #fff; font-size: 25px; cursor: pointer; }
+        #local-v { position: absolute; top: 20px; right: 20px; width: 100px; height: 150px; border: 2px solid var(--neon); border-radius: 8px; z-index: 5600; object-fit: cover; background: #111; }
+        .end-call { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: var(--danger); border-radius: 50%; border: none; color: #fff; font-size: 25px; box-shadow: 0 0 20px var(--danger); cursor: pointer; }
 
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes glitch { 0% { transform: skew(10deg); opacity: 0.8; } 100% { transform: skew(-10deg); opacity: 1; } }
-        @keyframes vibrate { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
-        @keyframes pulse { 50% { opacity: 0.5; } }
+        @keyframes pulse { from { transform: scale(0.95); } to { transform: scale(1.05); } }
     </style>
 </head>
 <body>
@@ -73,310 +59,203 @@
     <canvas id="matrix-bg"></canvas>
 
     <div id="intro-screen">
-        <h1 class="intro-txt">V40 PHANTOM</h1>
-        <small style="color:#555; margin-top:10px;">ENCRYPTED SYSTEM INITIALIZING...</small>
+        <h1 class="intro-title">PHANTOM V43</h1>
+        <p style="color:var(--blue); letter-spacing: 5px;">ISMAIL BOSS ELITE</p>
+        <div style="color:var(--gold); border:1px solid; padding:5px 15px; margin-top:20px; font-size: 12px;">END-TO-END ENCRYPTION</div>
     </div>
 
     <div id="login-screen">
-        <button class="role-btn boss-style" onclick="bootSystem('BOSS')">BOSS (HOST)</button>
-        <button class="role-btn" onclick="bootSystem('GUEST')">QONAQ (JOIN)</button>
-    </div>
-
-    <div id="scan-screen">
-        <div class="radar-ring"><div class="radar-line"></div></div>
-        <div class="status-log" id="status-log">NETWORK SCANNING...</div>
-        <button class="retry-btn" id="force-btn" onclick="forceRetry()">MƏCBURİ QOŞUL</button>
+        <button class="role-btn" onclick="boot('BOSS')" style="color:var(--blue); border-color:var(--blue)">BOSS (HOST)</button>
+        <button class="role-btn" onclick="boot('GUEST')">QONAQ (JOIN)</button>
     </div>
 
     <div id="app-screen">
         <div class="top-bar">
-            <div><b style="color:var(--neon)">ISMAIL BOSS V40</b><br><small style="color:#888; font-size:10px;">SECURE TUNNEL ACTIVE</small></div>
+            <div><b style="color:var(--neon)">V43 BEAST</b><br><small id="status" style="font-size: 9px; color: #888;">OFFLINE</small></div>
             <div style="display:flex; gap:20px;">
-                <i class="fas fa-video fa-lg" style="color:var(--blue)" onclick="prepCall('video')"></i>
-                <i class="fas fa-phone-alt fa-lg" style="color:var(--neon)" onclick="prepCall('audio')"></i>
+                <i class="fas fa-video fa-lg" style="color:var(--blue)" onclick="prep('video')"></i>
+                <i class="fas fa-phone-alt fa-lg" style="color:var(--neon)" onclick="prep('audio')"></i>
             </div>
         </div>
-        <div class="feed" id="chat-feed"></div>
-        <div class="bot-bar">
-            <i class="fas fa-microphone fa-lg" id="mic-icon" style="color:var(--neon)" onmousedown="recOn()" onmouseup="recOff()" ontouchstart="recOn()" ontouchend="recOff()"></i>
-            <input type="text" class="msg-box" id="msg-in" placeholder="Şifrəli mesaj...">
-            <i class="fas fa-paper-plane fa-lg" style="color:var(--blue)" onclick="sendTxt()"></i>
+        
+        <div class="feed" id="chat-feed">
+            <div class="secure-notice">
+                <i class="fas fa-lock"></i> Bütün yazışmalarınız İsmail tərəfindən qorunur. Gizliliyiniz önəmlidir.
+            </div>
         </div>
-    </div>
 
-    <div id="call-ui">
-        <i class="fas fa-user-secret call-icon"></i>
-        <div class="call-txt" id="call-txt">GƏLƏN ZƏNG...</div>
-        <div id="inc-btns" class="btn-row" style="display:none;">
-            <button class="c-btn reject" onclick="answerCall(false)"><i class="fas fa-times"></i></button>
-            <button class="c-btn accept" onclick="answerCall(true)"><i class="fas fa-phone"></i></button>
-        </div>
-        <div id="out-btns" class="btn-row" style="display:none;">
-            <button class="c-btn reject" onclick="cancelCall()"><i class="fas fa-times"></i></button>
+        <div class="bot-bar">
+            <div class="emoji-panel">
+                <span class="emoji-btn" onclick="sendEmoji('❤️')">❤️</span>
+                <span class="emoji-btn" onclick="sendEmoji('🔥')">🔥</span>
+                <span class="emoji-btn" onclick="sendEmoji('👍')">👍</span>
+            </div>
+            <input type="text" class="msg-box" id="msg-in" placeholder="Mesaj yazın...">
+            <i class="fas fa-paper-plane fa-lg" style="color:var(--blue); cursor: pointer;" onclick="sendTxt()"></i>
         </div>
     </div>
 
     <div id="vid-layer">
         <video id="remote-v" autoplay playsinline></video>
         <video id="local-v" autoplay muted playsinline></video>
-        <button class="end-call" onclick="terminateCall()"><i class="fas fa-phone-slash"></i></button>
+        <button class="end-call" onclick="end()"><i class="fas fa-phone-slash"></i></button>
     </div>
 
 <script>
-// --- CORE CONFIG ---
-const KEY = "V40_ISMAIL_BOSS_SECURE";
-const BOSS_ID = "ISMAIL-V40-HOST-X99"; // Sabit BOSS ID-si
-let role, peer, conn, myStream, curCall, callType;
-let mediaRec, chunks = [];
+const KEY = "V43_ISMAIL_BOSS_SECURE";
+const BOSS_ID = "ISMAIL-V43-MASTER-77"; // Daha güclü ID
+let peer, conn, myStream, curCall, cType;
 
-// Səslər
-const audRing = new Audio("https://cdn.freesound.org/previews/538/538006_11674332-lq.mp3");
-const audDial = new Audio("https://cdn.freesound.org/previews/336/336986_5939023-lq.mp3");
-audRing.loop = true; audDial.loop = true;
+const sndEmoji = new Audio("https://cdn.freesound.org/previews/124/124902_2257257-lq.mp3");
+const sndMsg = new Audio("https://cdn.freesound.org/previews/554/554220_11861213-lq.mp3");
 
-// STUN Serverlər (Gücləndirilmiş)
-const ICE_CONFIG = {
-    'iceServers': [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:19302' }
-    ]
-};
-
-// --- 1. BOOT ---
 window.onload = () => {
     drawMatrix();
     setTimeout(() => {
         document.getElementById('intro-screen').style.display = 'none';
         document.getElementById('login-screen').style.display = 'flex';
-    }, 2500);
+    }, 4000);
 };
 
-function log(txt) {
-    const el = document.getElementById('status-log');
-    el.innerHTML = txt;
-}
-
-// --- 2. NETWORK LOGIC (FIXED) ---
-function bootSystem(selectedRole) {
-    role = selectedRole;
+function boot(role) {
     document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('scan-screen').style.display = 'flex';
+    const myId = (role === 'BOSS') ? BOSS_ID : "GUEST-" + Math.floor(Math.random()*99999);
     
-    // Qonaq üçün unikal ID, Boss üçün sabit ID
-    const myId = (role === 'BOSS') ? BOSS_ID : "GUEST-" + Math.floor(Math.random() * 999999);
-    
-    // Peer yaradılır
-    log("SERVERƏ SORĞU GÖNDƏRİLİR...");
-    peer = new Peer(myId, { config: ICE_CONFIG, debug: 1 });
+    peer = new Peer(myId, {
+        config: {'iceServers': [{urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'}]},
+        debug: 1
+    });
 
     peer.on('open', (id) => {
-        log(`SERVERDƏ TƏSDİQLƏNDİ.<br>ID: ${id}<br>QARŞI TƏRƏF AXTARILIR...`);
-        if(role === 'GUEST') {
-            connectLoop(); // Qonaq dərhal axtarışa başlayır
-        } else {
-            log("HOST AKTİVDİR.<br>QONAQ GÖZLƏNİLİR...");
-        }
+        document.getElementById('app-screen').style.display = 'flex';
+        document.getElementById('status').innerText = "SİSTEM AKTİVDİR: " + id;
+        if(role === 'GUEST') tryConnect();
     });
 
     peer.on('connection', (c) => {
         conn = c;
-        readyUp();
+        setup();
+    });
+
+    peer.on('call', call => {
+        if(confirm("İsmail Boss Sistemindən gələn zəngi qəbul edirsiz?")) {
+            navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(s => {
+                myStream = s;
+                document.getElementById('vid-layer').style.display = 'block';
+                document.getElementById('local-v').srcObject = s;
+                call.answer(s);
+                call.on('stream', rs => {
+                    const rv = document.getElementById('remote-v');
+                    rv.srcObject = rs;
+                    rv.play();
+                });
+                curCall = call;
+            });
+        }
     });
 
     peer.on('error', (err) => {
-        log("XƏTA: " + err.type + "<br>YENİDƏN CƏHD EDİLİR...");
-        if(role === 'BOSS' && err.type === 'unavailable-id') {
-            alert("Sistemdə 'BOSS' artıq var. Digər tabları bağlayın və səhifəni yeniləyin.");
-        }
-        setTimeout(() => document.getElementById('force-btn').style.display = 'block', 2000);
+        console.error(err);
+        document.getElementById('status').innerText = "XƏTA BAŞ VERDİ";
     });
 }
 
-// Qonaq üçün təkrar qoşulma dövrü (THE FIX)
-function connectLoop() {
-    if(conn) return; // Artıq qoşulubsa dayan
-    log("BOSS AXTARILIR... (CƏHD EDİLİR)");
-    
-    const c = peer.connect(BOSS_ID, { reliable: true });
-    
-    c.on('open', () => {
-        conn = c;
-        readyUp();
+function tryConnect() {
+    const c = peer.connect(BOSS_ID, {reliable: true});
+    c.on('open', () => { 
+        conn = c; 
+        setup(); 
+        document.getElementById('status').innerText = "BOSS-A QOŞULDU";
     });
-
-    c.on('error', (e) => {
-        log("BOSS TAPILMADI, YENİDƏN YOXLANILIR...");
-        setTimeout(connectLoop, 2000); // 2 saniyə sonra təkrar
-    });
-
-    // Əgər 5 saniyə sonra hələ də qoşulmayıbsa, düyməni göstər
-    setTimeout(() => {
-        if(!conn) document.getElementById('force-btn').style.display = 'block';
-    }, 5000);
+    setTimeout(() => { if(!conn) tryConnect(); }, 3000);
 }
 
-function forceRetry() {
-    location.reload(); // Ən təmiz yol səhifəni yeniləməkdir
-}
-
-function readyUp() {
-    log("UĞURLU! TƏHLÜKƏSİZ TUNEL QURULDU.");
-    document.querySelector('.radar-line').style.background = "var(--blue)";
-    
-    // Data dinləmə
+function setup() {
     conn.on('data', (raw) => {
         try {
-            const dec = CryptoJS.AES.decrypt(raw, KEY).toString(CryptoJS.enc.Utf8);
-            const data = JSON.parse(dec);
-            handleData(data);
-        } catch(e) { console.log("Crypt Error"); }
+            const bytes = CryptoJS.AES.decrypt(raw, KEY);
+            const d = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+            if(d.t === 'txt') { addMsg(d.c, 'them'); sndMsg.play(); }
+            if(d.t === 'emo') { triggerEmoji(d.c); }
+            if(d.t === 'end') { end(true); }
+        } catch(e) { console.log("Decrypt error"); }
     });
-
-    setTimeout(() => {
-        document.getElementById('scan-screen').style.display = 'none';
-        document.getElementById('app-screen').style.display = 'flex';
-    }, 1000);
+    conn.on('close', () => { document.getElementById('status').innerText = "BAĞLANTI KƏSİLDİ"; });
 }
 
-// --- 3. COMMUNICATION ---
-function send(type, content) {
-    if(conn && conn.open) {
-        const enc = CryptoJS.AES.encrypt(JSON.stringify({t: type, c: content}), KEY).toString();
-        conn.send(enc);
-    }
-}
-
-function handleData(d) {
-    if(d.t === 'txt') addMsg(d.c, 'them');
-    if(d.t === 'aud') addAud(d.c, 'them');
-    if(d.t === 'call_req') incCall(d.c);
-    if(d.t === 'call_ans') startCallStream(true); // O qəbul etdi, mən başlatdım
-    if(d.t === 'call_end') terminateCall(true);
-}
-
-// Mesaj
 function sendTxt() {
     const i = document.getElementById('msg-in');
-    if(!i.value) return;
+    if(!i.value || !conn) return;
+    const enc = CryptoJS.AES.encrypt(JSON.stringify({t:'txt', c:i.value}), KEY).toString();
+    conn.send(enc);
     addMsg(i.value, 'me');
-    send('txt', i.value);
     i.value = "";
 }
+
+function sendEmoji(emo) {
+    if(!conn) return;
+    const enc = CryptoJS.AES.encrypt(JSON.stringify({t:'emo', c:emo}), KEY).toString();
+    conn.send(enc);
+    triggerEmoji(emo);
+}
+
+function triggerEmoji(emo) {
+    sndEmoji.play();
+    confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.7 },
+        colors: emo === '❤️' ? ['#ff0000'] : (emo === '🔥' ? ['#ff6600', '#ffcc00'] : ['#00ff41'])
+    });
+}
+
 function addMsg(t, w) {
     const d = document.createElement('div');
     d.className = `bubble ${w}`;
     d.innerText = t;
     const f = document.getElementById('chat-feed');
-    f.appendChild(d); f.scrollTop = f.scrollHeight;
+    f.appendChild(d);
+    f.scrollTop = f.scrollHeight;
 }
 
-// Audio Rec
-function recOn() {
-    navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
-        mediaRec = new MediaRecorder(s);
-        chunks = [];
-        mediaRec.ondataavailable = e => chunks.push(e.data);
-        mediaRec.onstop = () => {
-            const r = new FileReader();
-            r.readAsDataURL(new Blob(chunks));
-            r.onload = () => { addAud(r.result, 'me'); send('aud', r.result); };
-        };
-        mediaRec.start();
-        document.getElementById('mic-icon').style.color = 'var(--danger)';
-    });
-}
-function recOff() { if(mediaRec) { mediaRec.stop(); document.getElementById('mic-icon').style.color = 'var(--neon)'; } }
-function addAud(src, w) {
-    const d = document.createElement('div');
-    d.className = `bubble ${w}`;
-    d.innerHTML = `<div onclick="new Audio('${src}').play()" style="cursor:pointer; display:flex; align-items:center; gap:10px;"><i class="fas fa-play"></i> SƏSLİ MESAJ</div>`;
-    document.getElementById('chat-feed').appendChild(d);
-}
-
-// --- 4. CALL LOGIC ---
-function prepCall(type) {
-    callType = type;
-    document.getElementById('call-ui').style.display = 'flex';
-    document.getElementById('call-txt').innerText = "ZƏNG EDİLİR...";
-    document.getElementById('out-btns').style.display = 'flex';
-    document.getElementById('inc-btns').style.display = 'none';
-    audDial.play();
-    send('call_req', type);
-}
-
-function incCall(type) {
-    callType = type;
-    document.getElementById('call-ui').style.display = 'flex';
-    document.getElementById('call-txt').innerText = (type==='video' ? "GÖRÜNTÜLÜ" : "SƏSLİ") + " ZƏNG";
-    document.getElementById('inc-btns').style.display = 'flex';
-    document.getElementById('out-btns').style.display = 'none';
-    audRing.play();
-}
-
-function answerCall(yes) {
-    audRing.pause(); audRing.currentTime = 0;
-    if(yes) {
-        send('call_ans', 'ok');
-        startCallStream(false); // Mən qəbul etdim
-    } else {
-        document.getElementById('call-ui').style.display = 'none';
-        send('call_end', 'rej');
+async function prep(type) {
+    if(!conn) return alert("Hələ qoşulmayıb!");
+    cType = type;
+    document.getElementById('vid-layer').style.display = 'block';
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({video: type==='video', audio:true});
+        myStream = stream;
+        document.getElementById('local-v').srcObject = stream;
+        curCall = peer.call(conn.peer, stream);
+        curCall.on('stream', rs => {
+            const rv = document.getElementById('remote-v');
+            rv.srcObject = rs;
+            rv.play();
+        });
+    } catch(e) { 
+        alert("Kamera/Mikrofon tapılmadı.");
+        document.getElementById('vid-layer').style.display = 'none';
     }
 }
 
-function cancelCall() {
-    audDial.pause(); audDial.currentTime = 0;
-    document.getElementById('call-ui').style.display = 'none';
-    send('call_end', 'cancel');
-}
-
-async function startCallStream(isInitiator) {
-    document.getElementById('call-ui').style.display = 'none';
-    audDial.pause();
-    document.getElementById('vid-layer').style.display = 'block';
-    
-    const useVid = (callType === 'video');
-    try {
-        myStream = await navigator.mediaDevices.getUserMedia({ video: useVid, audio: true });
-        document.getElementById('local-v').srcObject = myStream;
-
-        if(isInitiator) {
-            curCall = peer.call(conn.peer, myStream);
-            handleStream(curCall);
-        } else {
-            peer.on('call', (call) => {
-                call.answer(myStream);
-                handleStream(call);
-            });
-        }
-    } catch(e) { alert("Kamera xətası: " + e); terminateCall(); }
-}
-
-function handleStream(call) {
-    curCall = call;
-    call.on('stream', rS => { document.getElementById('remote-v').srcObject = rS; });
-    call.on('close', () => terminateCall(true));
-}
-
-function terminateCall(remote = false) {
-    if(!remote) send('call_end', 'bye');
-    if(curCall) curCall.close();
+function end(remote = false) {
+    if(!remote && conn) {
+        const enc = CryptoJS.AES.encrypt(JSON.stringify({t:'end'}), KEY).toString();
+        conn.send(enc);
+    }
     if(myStream) myStream.getTracks().forEach(t => t.stop());
+    if(curCall) curCall.close();
     document.getElementById('vid-layer').style.display = 'none';
-    document.getElementById('call-ui').style.display = 'none';
-    audDial.pause(); audRing.pause();
 }
 
-// Matrix
 function drawMatrix() {
     const c = document.getElementById('matrix-bg');
     const x = c.getContext('2d');
     c.width = window.innerWidth; c.height = window.innerHeight;
     const drops = Array(Math.floor(c.width/20)).fill(1);
     function anim() {
-        x.fillStyle = "rgba(0,0,0,0.1)"; x.fillRect(0,0,c.width,c.height);
-        x.fillStyle = "#0f0"; x.font = "15px monospace";
+        x.fillStyle = "rgba(0,0,0,0.05)"; x.fillRect(0,0,c.width,c.height);
+        x.fillStyle = "#0f0";
         drops.forEach((y, i) => {
             x.fillText(Math.random()>0.5?"1":"0", i*20, y*20);
             if(y*20 > c.height && Math.random()>0.975) drops[i]=0;
@@ -389,6 +268,7 @@ function drawMatrix() {
 </script>
 </body>
 </html>
+
 
 
 
